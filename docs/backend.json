@@ -1,0 +1,264 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the WeatherWise Dashboard application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "Google user ID for authentication purposes."
+        },
+        "temperatureUnitPreference": {
+          "type": "string",
+          "description": "Preferred temperature unit (Celsius or Fahrenheit).",
+          "format": "string"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "City": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "City",
+      "type": "object",
+      "description": "Represents a city for which weather data is displayed.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the City entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the city."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Latitude of the city."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Longitude of the city."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "latitude",
+        "longitude"
+      ]
+    },
+    "FavoriteCity": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FavoriteCity",
+      "type": "object",
+      "description": "Represents a user's favorite city.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FavoriteCity entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N FavoriteCity)"
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Reference to City. (Relationship: City 1:N FavoriteCity)"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "cityId"
+      ]
+    },
+    "WeatherData": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeatherData",
+      "type": "object",
+      "description": "Represents the current weather data for a specific city.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WeatherData entity."
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Reference to City. (Relationship: City 1:N WeatherData)"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Current temperature in the selected units."
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Current humidity percentage."
+        },
+        "windSpeed": {
+          "type": "number",
+          "description": "Current wind speed."
+        },
+        "conditionIcon": {
+          "type": "string",
+          "description": "URL or identifier for the weather condition icon."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the weather data was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "cityId",
+        "temperature",
+        "humidity",
+        "windSpeed",
+        "conditionIcon",
+        "timestamp"
+      ]
+    },
+    "Forecast": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Forecast",
+      "type": "object",
+      "description": "Represents a weather forecast for a specific time and city.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Forecast entity."
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Reference to City. (Relationship: City 1:N Forecast)"
+        },
+        "forecastTime": {
+          "type": "string",
+          "description": "The forecast time.",
+          "format": "date-time"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Forecasted temperature."
+        },
+        "condition": {
+          "type": "string",
+          "description": "Forecasted weather condition (e.g., sunny, cloudy)."
+        },
+        "precipitationProbability": {
+          "type": "number",
+          "description": "Probability of precipitation (0 to 1)."
+        }
+      },
+      "required": [
+        "id",
+        "cityId",
+        "forecastTime",
+        "temperature",
+        "condition"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Includes temperatureUnitPreference.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cities/{cityId}",
+        "definition": {
+          "entityName": "City",
+          "schema": {
+            "$ref": "#/backend/entities/City"
+          },
+          "description": "Stores city data. Used for searching and referencing weather data.",
+          "params": [
+            {
+              "name": "cityId",
+              "description": "The unique identifier for the city."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/favoriteCities/{favoriteCityId}",
+        "definition": {
+          "entityName": "FavoriteCity",
+          "schema": {
+            "$ref": "#/backend/entities/FavoriteCity"
+          },
+          "description": "Stores users' favorite cities. Enables persistence between sessions.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "favoriteCityId",
+              "description": "The unique identifier for the favorite city entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/weatherData/{weatherDataId}",
+        "definition": {
+          "entityName": "WeatherData",
+          "schema": {
+            "$ref": "#/backend/entities/WeatherData"
+          },
+          "description": "Stores current weather data for cities.  Supports real-time updates.",
+          "params": [
+            {
+              "name": "weatherDataId",
+              "description": "The unique identifier for the weather data entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/forecasts/{forecastId}",
+        "definition": {
+          "entityName": "Forecast",
+          "schema": {
+            "$ref": "#/backend/entities/Forecast"
+          },
+          "description": "Stores weather forecasts for cities. Used for detailed views and trends.",
+          "params": [
+            {
+              "name": "forecastId",
+              "description": "The unique identifier for the forecast entry."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the WeatherWise Dashboard application, focusing on real-time weather data, forecasts, user preferences, and favorite cities. The structure prioritizes authorization independence to ensure robust security rules and scalable operations. User-specific data is segregated under the `/users/{userId}` path for clear ownership and private access. City and Weather data are stored in top-level collections to allow simple querying.  Data that required collabroation uses the Membership Map (`members: {uid1: \"role\", uid2: \"role\"}`). The design enforces Authorization Independence via denormalization (Strategy A), Structural Segregation (Strategy B) and Access Modeling (Strategy C). Path-based ownership is used for user-owned data, while global data is placed in root collections.  QAPs is achieved via segregation of user data vs application data"
+  }
+}
