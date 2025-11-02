@@ -2,6 +2,18 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  devIndicators: {
+    buildActivity: true,
+    buildActivityPosition: 'bottom-right',
+  },
+  experimental: {
+    // This is a development-only option, it will not be included in production builds.
+    // It allows requests from the specified origins to access the development server.
+    allowedDevOrigins: [
+      'https://*.cloudworkstations.dev',
+      'https://*.firebase.studio',
+    ],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
