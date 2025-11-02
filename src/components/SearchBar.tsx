@@ -64,9 +64,6 @@ export default function SearchBar({ onCitySelect }: SearchBarProps) {
           onFocus={() => query.length > 1 && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
         />
-        <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
-        </kbd>
       </div>
       {isOpen && (
         <CommandList className="absolute top-full z-10 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
