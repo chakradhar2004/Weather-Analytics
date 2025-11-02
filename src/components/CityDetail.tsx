@@ -1,13 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useAppSelector } from '@/hooks/redux-hooks';
-import type { City } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAppSelector } from '../hooks/redux-hooks';
+import type { City } from '../lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Star, Droplets, Wind, Gauge, Sun } from 'lucide-react';
-import { convertTemperature } from '@/lib/utils';
-import Image from 'next/image';
+import { convertTemperature } from '../lib/utils';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { useTheme } from 'next-themes';
 import { format } from 'date-fns';
@@ -28,7 +27,7 @@ const ChartTooltipContent = ({ active, payload, label, unit }: any) => {
         </div>
       );
     }
-  
+
     return null;
 };
 
@@ -85,7 +84,7 @@ export default function CityDetail({ city, isFavorite, onFavClick }: CityDetailP
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
           <div className="flex items-end gap-4">
-            <Image src={`https:${data.current.condition.icon}`} alt={data.current.condition.text} width={80} height={80} className="-mb-2" />
+            <img src={`https:${data.current.condition.icon}`} alt={data.current.condition.text} width={80} height={80} className="-mb-2" />
             <div className="text-8xl font-bold">{displayTemp}°</div>
             <div className="text-lg text-muted-foreground mb-3">
               <p className="font-semibold">{unit === 'metric' ? 'Celsius' : 'Fahrenheit'}</p>
@@ -124,7 +123,7 @@ export default function CityDetail({ city, isFavorite, onFavClick }: CityDetailP
                  <div key={day.date} className="flex items-center justify-between py-1">
                     <span className="w-1/3 font-medium">{format(new Date(day.date), 'EEEE')}</span>
                     <div className="w-1/3 flex justify-center">
-                        <Image src={`https:${day.day.condition.icon}`} alt={day.day.condition.text} width={24} height={24} />
+                        <img src={`https:${day.day.condition.icon}`} alt={day.day.condition.text} width={24} height={24} />
                     </div>
                     <div className="w-1/3 text-right">
                         <span className="font-medium">{convertTemperature(day.day[unit === 'metric' ? 'maxtemp_c' : 'maxtemp_f'], unit)}°</span>

@@ -1,19 +1,17 @@
-
 'use client';
 
-
 import React, { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
-import { addFavorite, removeFavorite, setFavorites, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
-import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
-import CityCard from '@/components/CityCard';
-import type { City } from '@/lib/types';
+import { useAppDispatch, useAppSelector } from '../hooks/redux-hooks';
+import { addFavorite, removeFavorite, setFavorites, saveFavoritesToFirestore } from '../features/cities/citiesSlice';
+import { fetchWeatherForCity } from '../features/weather/weatherSlice';
+import CityCard from '../components/CityCard';
+import type { City } from '../lib/types';
 import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useUser, useFirestore } from '@/firebase';
+import { useNavigate } from 'react-router-dom';
+import { useUser, useFirestore } from '../firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { errorEmitter } from '../firebase/error-emitter';
+import { FirestorePermissionError } from '../firebase/errors';
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
@@ -23,7 +21,7 @@ export default function Dashboard() {
   }, []);
 
   const dispatch = mounted ? useAppDispatch() : null;
-  const router = mounted ? useRouter() : null;
+  const navigate = mounted ? useNavigate() : null;
   const { favorites } = mounted ? useAppSelector((state) => state.cities) : { favorites: [] };
 
   const { user, isUserLoading } = mounted ? useUser() : { user: null, isUserLoading: true };
@@ -123,7 +121,7 @@ export default function Dashboard() {
   };
 
   const handleCardClick = (city: City) => {
-      if (router) router.push(`/city/${encodeURIComponent(city.name)}`);
+      if (navigate) navigate(`/city/${encodeURIComponent(city.name)}`);
   }
 
   if (!mounted || isUserLoading) {

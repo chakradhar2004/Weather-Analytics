@@ -1,15 +1,13 @@
-
 'use client';
 
 import React from 'react';
-import type { City, WeatherData } from '@/lib/types';
-import { useAppSelector } from '@/hooks/redux-hooks';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import type { City, WeatherData } from '../lib/types';
+import { useAppSelector } from '../hooks/redux-hooks';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Droplets, Wind, Star } from 'lucide-react';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
-import { convertTemperature } from '@/lib/utils';
-import Image from 'next/image';
+import { convertTemperature } from '../lib/utils';
 
 interface CityCardProps {
   city: City;
@@ -28,7 +26,7 @@ export default function CityCard({ city, isFavorite, onFavClick, onCardClick }: 
   if (loading || !data) {
     return <Skeleton className="h-52 w-full" />;
   }
-  
+
   const tempUnit = unit === 'metric' ? 'temp_c' : 'temp_f';
   const displayTemp = convertTemperature(data.current[tempUnit], unit);
 
@@ -51,7 +49,7 @@ export default function CityCard({ city, isFavorite, onFavClick, onCardClick }: 
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-medium">{city.name}</CardTitle>
         <div className="text-4xl">
-          <Image src={`https:${data.current.condition.icon}`} alt={data.current.condition.text} width={48} height={48}/>
+          <img src={`https:${data.current.condition.icon}`} alt={data.current.condition.text} width={48} height={48}/>
         </div>
       </CardHeader>
       <CardContent>
@@ -73,4 +71,3 @@ export default function CityCard({ city, isFavorite, onFavClick, onCardClick }: 
     </Card>
   );
 }
-    
