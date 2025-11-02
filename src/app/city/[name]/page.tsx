@@ -1,4 +1,4 @@
-import { getWeatherData } from '@/lib/weather-api';
+import { getWeatherData } from '@/app/actions';
 import CityDetails from '@/components/city-details';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -24,7 +24,7 @@ export default async function CityPage({ params }: CityPageProps) {
   if (!weatherData) {
     notFound();
   }
-  
+
   const cityImageId = cityName.toLowerCase().replace(' ', '-');
   const cityImage = PlaceHolderImages.find(img => img.id === cityImageId);
 
@@ -32,18 +32,24 @@ export default async function CityPage({ params }: CityPageProps) {
     <div>
       {cityImage && (
         <div className="relative h-64 md:h-80 w-full">
-            <Image
-                src={cityImage.imageUrl}
-                alt={cityImage.description}
-                fill
-                className="object-cover"
-                data-ai-hint={cityImage.imageHint}
-                priority
-            />
-            <div className="absolute inset-0 bg-black/40" />
+          <Image
+            src={cityImage.imageUrl}
+            alt={cityImage.description}
+            fill
+            className="object-cover"
+            data-ai-hint={cityImage.imageHint}
+            priority
+          />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
       )}
-      <div className={cityImage ? "container mx-auto p-4 md:p-8 -mt-32 relative z-10" : "container mx-auto p-4 md:p-8"}>
+      <div
+        className={
+          cityImage
+            ? 'container mx-auto p-4 md:p-8 -mt-32 relative z-10'
+            : 'container mx-auto p-4 md:p-8'
+        }
+      >
         <CityDetails weatherData={weatherData} />
       </div>
     </div>

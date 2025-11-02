@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useFavorites } from '@/hooks/use-favorites';
-import { getWeatherData } from '@/lib/weather-api';
+import { getWeatherData } from '@/app/actions';
 import type { WeatherData } from '@/lib/types';
 import CityCard from './city-card';
 import { Skeleton } from './ui/skeleton';
@@ -11,17 +11,21 @@ import { Search } from 'lucide-react';
 
 const DashboardClient = () => {
   const { favorites, isMounted } = useFavorites();
-  const [weatherData, setWeatherData] = useState<Record<string, WeatherData | null>>({});
+  const [weatherData, setWeatherData] = useState<
+    Record<string, WeatherData | null>
+  >({});
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     if (!isMounted || favorites.length === 0) {
-      if(isMounted) setLoading(false);
+      if (isMounted) setLoading(false);
       return;
     }
 
     setLoading(true);
-    const dataPromises = favorites.map(city => getWeatherData(city).catch(() => null));
+    const dataPromises = favorites.map(city =>
+      getWeatherData(city).catch(() => null)
+    );
     const results = await Promise.all(dataPromises);
 
     const newWeatherData: Record<string, WeatherData | null> = {};
@@ -41,21 +45,21 @@ const DashboardClient = () => {
 
   if (!isMounted) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-            ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-48 rounded-lg" />
+        ))}
+      </div>
     );
   }
 
   if (loading) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: favorites.length || 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-lg" />
-            ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {Array.from({ length: favorites.length || 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-48 rounded-lg" />
+        ))}
+      </div>
     );
   }
 
@@ -65,9 +69,15 @@ const DashboardClient = () => {
         <Search className="h-12 w-12 text-muted-foreground mb-4" />
         <h2 className="text-xl font-semibold mb-2">No Favorite Cities</h2>
         <p className="text-muted-foreground mb-4 max-w-sm">
-          You haven't added any cities to your dashboard. Use the search bar to find and add cities.
+          You haven't added any cities to your dashboard. Use the search bar to
+          find and add cities.
         </p>
-        <Button variant="outline" onClick={() => document.querySelector<HTMLInputElement>('input[cmdk-input]')?.focus()}>
+        <Button
+          variant="outline"
+          onClick={() =>
+            document.querySelector<HTMLInputElement>('input[cmdk-input]')?.focus()
+          }
+        >
           Search for a city
         </Button>
       </div>
