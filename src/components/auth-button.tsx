@@ -31,7 +31,9 @@ export default function AuthButton() {
       if (auth) {
         try {
           setIsLoading(true);
-          await getRedirectResult(auth);
+          const result = await getRedirectResult(auth);
+          // If result is null, it means the user just landed on the page.
+          // If it has a user, the login was successful.
         } catch (error) {
           console.error('Error handling redirect result:', error);
         } finally {
@@ -46,14 +48,17 @@ export default function AuthButton() {
     if (auth) {
       setIsLoading(true);
       await signInWithRedirect(auth, provider);
+      // The page will redirect, so no need to set loading to false here.
     }
   };
 
   const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-    } catch (error) {
-      console.error('Error signing out:', error);
+    if (auth) {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
     }
   };
   
