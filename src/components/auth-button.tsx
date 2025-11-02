@@ -4,7 +4,7 @@ import {
   useUser,
   useAuth,
 } from '@/firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, signOut, getRedirectResult } from 'firebase/auth';
 import { Button } from './ui/button';
 import { LogIn, LogOut } from 'lucide-react';
 import {
@@ -17,18 +17,35 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from './ui/skeleton';
+import { useEffect, useState } from 'react';
 
 const provider = new GoogleAuthProvider();
 
 export default function AuthButton() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      if (auth) {
+        try {
+          setIsLoading(true);
+          await getRedirectResult(auth);
+        } catch (error) {
+          console.error('Error handling redirect result:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    handleRedirectResult();
+  }, [auth]);
 
   const handleSignIn = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
+    if (auth) {
+      setIsLoading(true);
+      await signInWithRedirect(auth, provider);
     }
   };
 
@@ -40,7 +57,7 @@ export default function AuthButton() {
     }
   };
   
-  if (isUserLoading) {
+  if (isUserLoading || isLoading) {
     return <Skeleton className="h-10 w-24" />;
   }
 
