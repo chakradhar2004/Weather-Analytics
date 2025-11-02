@@ -2,7 +2,7 @@
 const API_BASE_URL = 'https://api.weatherapi.com/v1';
 // TODO: Replace with your actual WeatherAPI.com key.
 // It's recommended to move this to a .env.local file for security.
-const API_KEY = '18221e14eace24caeb5baa57cfe55b63'; 
+const API_KEY = '09e158c1b35e4426a9871018250211'; 
 
 const CACHE_KEY_PREFIX = 'weather_cache_v1_';
 const TTL_MS = 60 * 1000; // 60s
