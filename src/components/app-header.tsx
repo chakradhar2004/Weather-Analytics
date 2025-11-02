@@ -18,7 +18,8 @@ const AppHeader = () => {
   const handleCitySelect = (city: City) => {
     dispatch(addFavorite(city));
     dispatch(fetchWeatherForCity(city.name));
-    router.push(`/city/${encodeURIComponent(city.name)}`);
+    // The line below was causing the immediate redirect. It has been removed.
+    // router.push(`/city/${encodeURIComponent(city.name)}`);
   };
 
   return (
