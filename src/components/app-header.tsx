@@ -7,13 +7,16 @@ import { useAppDispatch } from '@/hooks/redux-hooks';
 import { addFavorite } from '@/features/cities/citiesSlice';
 import type { City } from '@/lib/types';
 import UnitToggle from './unit-toggle';
+import { useRouter } from 'next/navigation';
 
 
 const AppHeader = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   
   const handleCitySelect = (city: City) => {
     dispatch(addFavorite(city));
+    router.push(`/city/${encodeURIComponent(city.name)}`);
   };
 
   return (
