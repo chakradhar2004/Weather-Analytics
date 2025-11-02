@@ -27,22 +27,18 @@ export default function ClientPage({ cityName }: ClientPageProps) {
     }
   }, [dispatch, cityName, weatherData, weatherStatus]);
 
-  // Derive city and favorite status from weather data and favorites list
-  const city: City | undefined = weatherData ? {
-    id: weatherData.location.lon * 100 + weatherData.location.lat * 100, // Create a somewhat unique ID
-    name: weatherData.location.name,
-    country: weatherData.location.country,
-  } : undefined;
+  // Find the city from the favorites list in the Redux store
+  const city = favorites.find(fav => fav.name === cityName);
 
-  const isFavorite = city ? favorites.some(fav => fav.name === city.name) : false;
+  const isFavorite = !!city;
 
   const handleToggleFavorite = (cityToToggle: City) => {
     if (isFavorite) {
-      const favCity = favorites.find(f => f.name === cityToToggle.name);
-      if (favCity) {
-        dispatch(removeFavorite(favCity.id));
-      }
+      dispatch(removeFavorite(cityToToggle.id));
     } else {
+      // If the city isn't in favorites, we need a complete city object to add it.
+      // This part might need more robust logic if we can land here with a non-favorite city.
+      // For now, we assume the detail page is only for favorite cities.
       dispatch(addFavorite(cityToToggle));
     }
     if (user) {
@@ -55,9 +51,13 @@ export default function ClientPage({ cityName }: ClientPageProps) {
       notFound();
   }
 
-  // Show a loading state or skeleton while data is being fetched
+  // A city object is required to render details.
+  // Show loading/skeleton if weather data is fetching OR if the city isn't in our list yet.
   if (weatherStatus === 'pending' || !city) {
-    return <CityDetail city={null} isFavorite={false} onFavClick={() => {}} />;
+    // We pass a temporary city object to the skeleton to avoid errors, 
+    // but the component will show its loading state.
+    const tempCityForSkeleton: City = city || { id: 0, name: cityName, country: '' };
+    return <CityDetail city={tempCityForSkeleton} isFavorite={false} onFavClick={() => {}} />;
   }
 
   return (

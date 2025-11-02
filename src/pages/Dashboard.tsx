@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
-import { addFavorite, removeFavorite, setFavorites, hydrate, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
+import { addFavorite, removeFavorite, setFavorites, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 import CityCard from '@/components/CityCard';
 import type { City } from '@/lib/types';
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -22,19 +22,14 @@ export function Dashboard() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // This effect runs once on mount to hydrate state from localStorage/firestore
+  // Effect to sync favorites from Firestore when user logs in/out
   useEffect(() => {
-    dispatch(hydrate());
-  }, [dispatch]);
-
-  // This effect syncs favorites from Firestore when the user logs in
-  useEffect(() => {
-    if (isUserLoading) return;
+    if (isUserLoading || !firestore) return; // Wait for user and firestore to be ready
 
     let unsubscribe = () => {};
 
-    if (user && firestore) {
-      // User is logged in, use Firestore
+    if (user) {
+      // User is logged in, sync with Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
       const userData = { 
         id: user.uid,
@@ -43,7 +38,7 @@ export function Dashboard() {
         photoURL: user.photoURL 
       };
       
-      // Create or update user document
+      // Create or update user document, but don't block
       setDoc(userDocRef, userData, { merge: true })
         .catch(error => {
             errorEmitter.emit(
@@ -58,9 +53,8 @@ export function Dashboard() {
 
       unsubscribe = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
-          const data = docSnap.data();
-          // Only set favorites if they differ from current state to avoid loops
-          const firestoreFavorites = data.favoriteCities || [];
+          const firestoreFavorites = docSnap.data()?.favoriteCities || [];
+          // Only dispatch if firestore data is different from redux state to avoid loops
           if (JSON.stringify(firestoreFavorites) !== JSON.stringify(favorites)) {
             dispatch(setFavorites(firestoreFavorites));
           }
@@ -71,10 +65,15 @@ export function Dashboard() {
           path: userDocRef.path,
         });
         errorEmitter.emit('permission-error', contextualError);
+        console.error("Error listening to user document:", error);
       });
+
+    } else {
+      // User is logged out, load from localStorage
+      // This is handled by the initial state of the slice now
     }
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup listener on unmount or user change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isUserLoading, firestore, dispatch]);
 
@@ -83,15 +82,15 @@ export function Dashboard() {
   useEffect(() => {
     if (favorites.length === 0) return;
     
-    favorites.forEach((city) => {
-      dispatch(fetchWeatherForCity(city.name));
-    });
+    const fetchAllWeather = () => {
+      favorites.forEach((city) => {
+        dispatch(fetchWeatherForCity(city.name));
+      });
+    };
 
-    const interval = setInterval(() => {
-        favorites.forEach((city) => {
-            dispatch(fetchWeatherForCity(city.name));
-          });
-    }, 60000); // Poll every 60 seconds
+    fetchAllWeather(); // Fetch immediately on change
+
+    const interval = setInterval(fetchAllWeather, 60000); // Poll every 60 seconds
 
     return () => clearInterval(interval);
   }, [favorites, dispatch]);
@@ -104,9 +103,11 @@ export function Dashboard() {
     } else {
       dispatch(addFavorite(city));
     }
-    // Let the saveFavoritesToFirestore thunk handle the logic
-    // @ts-ignore
-    dispatch(saveFavoritesToFirestore());
+    // Save to Firestore if user is logged in
+    if (user) {
+        // @ts-ignore
+        dispatch(saveFavoritesToFirestore());
+    }
   };
 
   const handleCardClick = (city: City) => {

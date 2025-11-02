@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import type { City } from '@/lib/types';
-import { doc, getDoc, setDoc, Firestore } from 'firebase/firestore';
+import { doc, setDoc, Firestore } from 'firebase/firestore';
 import type { RootState } from '@/app/store';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -40,17 +40,21 @@ export const saveFavoritesToFirestore = createAsyncThunk(
 );
 
 const getInitialFavorites = (): City[] => {
-  if (typeof window === 'undefined') return [{ id: 1269843, name: 'Hyderabad', country: 'India' }];
+  if (typeof window === 'undefined') return [];
   try {
     const stored = localStorage.getItem('fav_cities');
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      // Ensure we return a valid array
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
-  } catch {}
-  return [{ id: 1269843, name: 'Hyderabad', country: 'India' }];
+  } catch (e) {
+    console.error("Failed to parse favorites from localStorage", e);
+  }
+  // Default to empty array if nothing found or error
+  return [];
 };
 
 const getInitialUnit = (): 'metric' | 'imperial' => {
@@ -101,15 +105,8 @@ const slice = createSlice({
         localStorage.setItem('unit', state.unit);
       }
     },
-    // This action is now simplified and only loads from localstorage if the state is empty
-    hydrate(state) {
-      if (state.favorites.length === 0) {
-        state.favorites = getInitialFavorites();
-      }
-      state.unit = getInitialUnit();
-    }
   },
 });
 
-export const { addFavorite, removeFavorite, setFavorites, setUnit, hydrate } = slice.actions;
+export const { addFavorite, removeFavorite, setFavorites, setUnit } = slice.actions;
 export default slice.reducer;
