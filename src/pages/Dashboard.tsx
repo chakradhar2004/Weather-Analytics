@@ -14,6 +14,7 @@ import { errorEmitter } from '../firebase/error-emitter';
 import { FirestorePermissionError } from '../firebase/errors';
 
 export default function Dashboard() {
+  console.log('Dashboard component rendering');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

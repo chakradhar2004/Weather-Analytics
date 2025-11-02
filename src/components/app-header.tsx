@@ -1,19 +1,19 @@
 'use client';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 import { CloudSun } from 'lucide-react';
 import SearchBar from './SearchBar'; // Corrected import
-import { useAppDispatch } from '@/hooks/redux-hooks';
-import { addFavorite, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
-import type { City } from '@/lib/types';
+import { useAppDispatch } from '../hooks/redux-hooks';
+import { addFavorite, saveFavoritesToFirestore } from '../features/cities/citiesSlice';
+import type { City } from '../lib/types';
 import UnitToggle from './unit-toggle';
-import { useRouter } from 'next/navigation';
-import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
+import { useNavigate } from 'react-router-dom';
+import { fetchWeatherForCity } from '../features/weather/weatherSlice';
 import AuthButton from './auth-button';
 
 
 const AppHeader = () => {
   const dispatch = useAppDispatch();
-  const router = useRouter();
+  const navigate = useNavigate();
   
   const handleCitySelect = (city: City) => {
     dispatch(addFavorite(city));
@@ -27,7 +27,7 @@ const AppHeader = () => {
     <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="container flex h-16 items-center justify-center">
         <div className="flex items-center space-x-6">
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+          <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
             <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-2">
               <CloudSun className="h-6 w-6 text-white" />
             </div>
