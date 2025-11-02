@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "new-york",
+      "description": "A bustling street in New York City with iconic yellow cabs.",
+      "imageUrl": "https://images.unsplash.com/photo-1448317846460-907988886b33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxOZXclMjBZb3JrJTIwY2l0eXxlbnwwfHx8fDE3NjIwNjE5OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "New York city"
+    },
+    {
+      "id": "london",
+      "description": "The River Thames in London with Tower Bridge in the background.",
+      "imageUrl": "https://images.unsplash.com/photo-1535051188811-c841ac77c80b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxMb25kb24lMjBicmlkZ2V8ZW58MHx8fHwxNzYyMDAwNzY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "London bridge"
+    },
+    {
+      "id": "tokyo",
+      "description": "A vibrant, neon-lit street in Tokyo at night.",
+      "imageUrl": "https://images.unsplash.com/photo-1586165877141-3dbcfc059283?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxUb2t5byUyMG5pZ2h0fGVufDB8fHx8MTc2MjAyMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Tokyo night"
+    },
+    {
+      "id": "sydney",
+      "description": "Sydney Opera House and Harbour Bridge at sunset.",
+      "imageUrl": "https://images.unsplash.com/photo-1559651868-066bcc28f358?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxTeWRuZXklMjBvcGVyYXxlbnwwfHx8fDE3NjIwNjE5OTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Sydney opera"
+    },
+    {
+      "id": "paris",
+      "description": "The Eiffel Tower in Paris, France.",
+      "imageUrl": "https://images.unsplash.com/photo-1713513281437-7da8f102dcd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8UGFyaXMlMjBFaWZmZWx8ZW58MHx8fHwxNzYyMDYxOTk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Paris Eiffel"
+    },
+    {
+      "id": "cairo",
+      "description": "The great pyramids of Giza near Cairo, Egypt.",
+      "imageUrl": "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxFZ3lwdCUyMHB5cmFtaWRzfGVufDB8fHx8MTc2MjA2MTk5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Egypt pyramids"
+    }
+  ]
 }
