@@ -15,7 +15,8 @@ type State = {
 export const saveFavoritesToFirestore = createAsyncThunk(
   'cities/saveFavoritesToFirestore',
   async (_, { getState, extra }) => {
-    const { firestore } = extra as { firestore: Firestore };
+    const { getFirestore } = extra as { getFirestore: () => Firestore | null };
+    const firestore = getFirestore();
     const state = getState() as RootState;
     const user = state.auth.user;
     const favorites = state.cities.favorites;
@@ -63,7 +64,7 @@ const getInitialUnit = (): 'metric' | 'imperial' => {
 };
 
 const initialState: State = {
-  favorites: getInitialFavorites(),
+  favorites: [],
   unit: 'metric',
   hydrated: false,
 }

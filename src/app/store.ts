@@ -13,9 +13,7 @@ const authReducer = (state = { user: null }, action: any) => {
   }
 };
 
-
-const firebaseServices = typeof window !== 'undefined' ? initializeFirebase() : getSdks(null as any);
-
+let firebaseServices: ReturnType<typeof getSdks> | null = null;
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +25,13 @@ export const store = configureStore({
     getDefaultMiddleware({
       thunk: {
         extraArgument: {
-          firestore: firebaseServices?.firestore,
+          getFirestore: () => {
+            if (typeof window === 'undefined') return null;
+            if (!firebaseServices) {
+                firebaseServices = initializeFirebase();
+            }
+            return firebaseServices.firestore;
+          },
         },
       },
       serializableCheck: false, // Required for Firebase timestamps etc.
