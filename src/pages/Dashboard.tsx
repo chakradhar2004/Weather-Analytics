@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
 import { addFavorite, removeFavorite, setFavorites, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
@@ -14,7 +14,7 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 
-export function Dashboard() {
+export default function Dashboard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { favorites } = useAppSelector((state) => state.cities);

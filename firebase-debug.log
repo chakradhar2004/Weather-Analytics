@@ -1,0 +1,14 @@
+[debug] [2025-11-02T15:08:40.108Z] ----------------------------------------------------------------------
+[debug] [2025-11-02T15:08:40.111Z] Command:       C:\Program Files\nodejs\node.exe C:\chakradhar\Weather-Analytics-Dashboard\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting
+[debug] [2025-11-02T15:08:40.112Z] CLI Version:   14.23.0
+[debug] [2025-11-02T15:08:40.112Z] Platform:      win32
+[debug] [2025-11-02T15:08:40.112Z] Node Version:  v22.20.0
+[debug] [2025-11-02T15:08:40.113Z] Time:          Sun Nov 02 2025 20:38:40 GMT+0530 (India Standard Time)
+[debug] [2025-11-02T15:08:40.113Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-11-02T15:08:45.407Z] Error: Timed out.
+    at Timeout._onTimeout (C:\chakradhar\Weather-Analytics-Dashboard\node_modules\firebase-tools\lib\utils.js:275:49)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[error] 
+[error] Error: An unexpected error has occurred.
