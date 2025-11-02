@@ -5,6 +5,7 @@ import type { City } from '@/lib/types';
 type State = {
   favorites: City[];
   unit: 'metric' | 'imperial';
+  hydrated: boolean;
 }
 
 const getInitialFavorites = (): City[] => {
@@ -35,7 +36,8 @@ const getInitialUnit = (): 'metric' | 'imperial' => {
 
 const initialState: State = {
   favorites: getInitialFavorites(),
-  unit: getInitialUnit(),
+  unit: 'metric',
+  hydrated: false,
 }
 
 const slice = createSlice({
@@ -57,10 +59,14 @@ const slice = createSlice({
     setUnit(state, action: PayloadAction<State['unit']>) {
       state.unit = action.payload;
       localStorage.setItem('unit', state.unit);
+    },
+    hydrate(state) {
+      state.unit = getInitialUnit();
+      state.hydrated = true;
     }
   }
 });
 
-export const { addFavorite, removeFavorite, setUnit } = slice.actions;
+export const { addFavorite, removeFavorite, setUnit, hydrate } = slice.actions;
 export default slice.reducer;
     

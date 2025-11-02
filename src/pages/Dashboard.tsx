@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
-import { addFavorite, removeFavorite } from '@/features/cities/citiesSlice';
+import { addFavorite, removeFavorite, hydrate } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 import CityCard from '@/components/CityCard';
 import CityDetail from '@/components/CityDetail';
@@ -18,10 +18,16 @@ import { useRouter } from 'next/navigation';
 export function Dashboard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { favorites } = useAppSelector((state) => state.cities);
+  const { favorites, hydrated } = useAppSelector((state) => state.cities);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
 
   useEffect(() => {
+    dispatch(hydrate());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    
     favorites.forEach((city) => {
       dispatch(fetchWeatherForCity(city.name));
     });
@@ -33,7 +39,7 @@ export function Dashboard() {
     }, 60000); // Poll every 60 seconds
 
     return () => clearInterval(interval);
-  }, [favorites, dispatch]);
+  }, [favorites, dispatch, hydrated]);
 
   const handleSelectCity = (city: City) => {
     dispatch(addFavorite(city));
@@ -53,6 +59,10 @@ export function Dashboard() {
 
   const handleCardClick = (city: City) => {
       router.push(`/city/${encodeURIComponent(city.name)}`);
+  }
+
+  if (!hydrated) {
+    return null; // or a loading spinner
   }
 
   return (

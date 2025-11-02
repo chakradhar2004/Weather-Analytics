@@ -5,10 +5,15 @@ import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
 import { setUnit } from '@/features/cities/citiesSlice';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
+import { useEffect, useState } from 'react';
 
 const UnitToggle = () => {
   const dispatch = useAppDispatch();
-  const { unit } = useAppSelector((state) => state.cities);
+  const { unit, hydrated } = useAppSelector((state) => state.cities);
+  
+  if (!hydrated) {
+      return <div className="w-20 h-8 rounded-md bg-secondary" />; // Placeholder
+  }
 
   return (
     <div className="flex items-center rounded-md bg-secondary p-1">
