@@ -6,7 +6,7 @@ import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 const LOCAL_FAVORITES_KEY = 'weatherwise-favorites';
-const DEFAULT_FAVORITES = ['New York', 'London', 'Tokyo'];
+const DEFAULT_FAVORITES = ['Hyderabad', 'Mumbai', 'Delhi'];
 
 type FavoriteCityDoc = {
   name: string;

@@ -1,40 +1,34 @@
 {
   "placeholderImages": [
     {
-      "id": "new-york",
-      "description": "A bustling street in New York City with iconic yellow cabs.",
-      "imageUrl": "https://images.unsplash.com/photo-1448317846460-907988886b33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxOZXclMjBZb3JrJTIwY2l0eXxlbnwwfHx8fDE3NjIwNjE5OTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "New York city"
+      "id": "hyderabad",
+      "description": "Charminar in Hyderabad, India.",
+      "imageUrl": "https://images.unsplash.com/photo-1599923640248-2b984a307040?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxIeWRlcmFiYWR8ZW58MHx8fHwxNzYyMDYyMDAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Hyderabad charminar"
     },
     {
-      "id": "london",
-      "description": "The River Thames in London with Tower Bridge in the background.",
-      "imageUrl": "https://images.unsplash.com/photo-1535051188811-c841ac77c80b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxMb25kb24lMjBicmlkZ2V8ZW58MHx8fHwxNzYyMDAwNzY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "London bridge"
+      "id": "mumbai",
+      "description": "The Gateway of India in Mumbai.",
+      "imageUrl": "https://images.unsplash.com/photo-1567157577861-c5243f7a8ed4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxNdW1iYWl8ZW58MHx8fHwxNzYyMDYyMDAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Mumbai gateway"
     },
     {
-      "id": "tokyo",
-      "description": "A vibrant, neon-lit street in Tokyo at night.",
-      "imageUrl": "https://images.unsplash.com/photo-1586165877141-3dbcfc059283?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxUb2t5byUyMG5pZ2h0fGVufDB8fHx8MTc2MjAyMjk1NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "Tokyo night"
+      "id": "delhi",
+      "description": "India Gate in New Delhi.",
+      "imageUrl": "https://images.unsplash.com/photo-1588763518337-376c121b61d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxEZWxoaSUyMEluZGlhJTIwR2F0ZXxlbnwwfHx8fDE3NjIwNjIwMDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Delhi India Gate"
     },
     {
-      "id": "sydney",
-      "description": "Sydney Opera House and Harbour Bridge at sunset.",
-      "imageUrl": "https://images.unsplash.com/photo-1559651868-066bcc28f358?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxTeWRuZXklMjBvcGVyYXxlbnwwfHx8fDE3NjIwNjE5OTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "Sydney opera"
+      "id": "bangalore",
+      "description": "Vidhana Soudha in Bangalore.",
+      "imageUrl": "https://images.unsplash.com/photo-1596232338144-0a91b2978a3c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHBCYW5nYWxvcmV8ZW58MHx8fHwxNzYyMDYyMDAzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Bangalore vidhana"
     },
     {
-      "id": "paris",
-      "description": "The Eiffel Tower in Paris, France.",
-      "imageUrl": "https://images.unsplash.com/photo-1713513281437-7da8f102dcd9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8UGFyaXMlMjBFaWZmZWx8ZW58MHx8fHwxNzYyMDYxOTk2fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "Paris Eiffel"
-    },
-    {
-      "id": "cairo",
-      "description": "The great pyramids of Giza near Cairo, Egypt.",
-      "imageUrl": "https://images.unsplash.com/photo-1553913861-c0fddf2619ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxFZ3lwdCUyMHB5cmFtaWRzfGVufDB8fHx8MTc2MjA2MTk5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "Egypt pyramids"
+      "id": "chennai",
+      "description": "A temple in Chennai, India.",
+      "imageUrl": "https://images.unsplash.com/photo-1616843413587-9e3a35f2bb32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxDaGVubmFpfGVufDB8fHx8MTc2MjA2MjAwM3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "Chennai temple"
     }
   ]
 }
