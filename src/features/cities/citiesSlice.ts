@@ -8,7 +8,6 @@ import { FirestorePermissionError } from '@/firebase/errors';
 type State = {
   favorites: City[];
   unit: 'metric' | 'imperial';
-  hydrated: boolean;
 }
 
 // Thunk to save favorites to Firestore
@@ -23,6 +22,8 @@ export const saveFavoritesToFirestore = createAsyncThunk(
 
     if (user && firestore) {
       const userDocRef = doc(firestore, 'users', user.uid);
+      // We only save the array of favorite cities.
+      // The user document itself is created/updated on login.
       setDoc(userDocRef, { favoriteCities: favorites }, { merge: true })
         .catch(error => {
           errorEmitter.emit(
@@ -64,9 +65,8 @@ const getInitialUnit = (): 'metric' | 'imperial' => {
 };
 
 const initialState: State = {
-  favorites: [],
-  unit: 'metric',
-  hydrated: false,
+  favorites: getInitialFavorites(),
+  unit: getInitialUnit(),
 }
 
 const slice = createSlice({
@@ -101,10 +101,12 @@ const slice = createSlice({
         localStorage.setItem('unit', state.unit);
       }
     },
+    // This action is now simplified and only loads from localstorage if the state is empty
     hydrate(state) {
-      state.favorites = getInitialFavorites();
+      if (state.favorites.length === 0) {
+        state.favorites = getInitialFavorites();
+      }
       state.unit = getInitialUnit();
-      state.hydrated = true;
     }
   },
 });

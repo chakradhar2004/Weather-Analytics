@@ -17,19 +17,19 @@ import { FirestorePermissionError } from '@/firebase/errors';
 export function Dashboard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { favorites, hydrated } = useAppSelector((state) => state.cities);
+  const { favorites } = useAppSelector((state) => state.cities);
   
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // This effect runs once on mount to hydrate state from localStorage
+  // This effect runs once on mount to hydrate state from localStorage/firestore
   useEffect(() => {
     dispatch(hydrate());
   }, [dispatch]);
 
-  // This effect syncs favorites between Firestore and Redux/localStorage
+  // This effect syncs favorites from Firestore when the user logs in
   useEffect(() => {
-    if (isUserLoading || !hydrated) return;
+    if (isUserLoading) return;
 
     let unsubscribe = () => {};
 
@@ -37,13 +37,13 @@ export function Dashboard() {
       // User is logged in, use Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
       const userData = { 
-        id: user.uid, // Add this line
+        id: user.uid,
         email: user.email, 
         displayName: user.displayName, 
         photoURL: user.photoURL 
       };
       
-      // Create user document if it doesn't exist
+      // Create or update user document
       setDoc(userDocRef, userData, { merge: true })
         .catch(error => {
             errorEmitter.emit(
@@ -59,8 +59,11 @@ export function Dashboard() {
       unsubscribe = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
+          // Only set favorites if they differ from current state to avoid loops
           const firestoreFavorites = data.favoriteCities || [];
-          dispatch(setFavorites(firestoreFavorites));
+          if (JSON.stringify(firestoreFavorites) !== JSON.stringify(favorites)) {
+            dispatch(setFavorites(firestoreFavorites));
+          }
         }
       }, (error) => {
         const contextualError = new FirestorePermissionError({
@@ -69,16 +72,16 @@ export function Dashboard() {
         });
         errorEmitter.emit('permission-error', contextualError);
       });
-    } else {
-      // User is logged out, use localStorage (which is already handled by `hydrate`)
     }
 
     return () => unsubscribe();
-  }, [user, isUserLoading, firestore, hydrated, dispatch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isUserLoading, firestore, dispatch]);
+
 
   // This effect fetches weather data for favorites whenever they change
   useEffect(() => {
-    if (!hydrated || favorites.length === 0) return;
+    if (favorites.length === 0) return;
     
     favorites.forEach((city) => {
       dispatch(fetchWeatherForCity(city.name));
@@ -91,7 +94,7 @@ export function Dashboard() {
     }, 60000); // Poll every 60 seconds
 
     return () => clearInterval(interval);
-  }, [favorites, dispatch, hydrated]);
+  }, [favorites, dispatch]);
 
 
   const handleToggleFavorite = (city: City) => {
@@ -101,17 +104,16 @@ export function Dashboard() {
     } else {
       dispatch(addFavorite(city));
     }
-    if (user) {
-        // @ts-ignore
-        dispatch(saveFavoritesToFirestore());
-    }
+    // Let the saveFavoritesToFirestore thunk handle the logic
+    // @ts-ignore
+    dispatch(saveFavoritesToFirestore());
   };
 
   const handleCardClick = (city: City) => {
       router.push(`/city/${encodeURIComponent(city.name)}`);
   }
 
-  if (!hydrated || isUserLoading) {
+  if (isUserLoading) {
     return null; // or a loading spinner
   }
 

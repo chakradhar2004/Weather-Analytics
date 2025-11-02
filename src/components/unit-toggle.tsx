@@ -9,10 +9,15 @@ import { useEffect, useState } from 'react';
 
 const UnitToggle = () => {
   const dispatch = useAppDispatch();
-  const { unit, hydrated } = useAppSelector((state) => state.cities);
+  const { unit } = useAppSelector((state) => state.cities);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
-  if (!hydrated) {
-      return <div className="w-20 h-8 rounded-md bg-secondary" />; // Placeholder
+  if (!mounted) {
+      return <div className="w-20 h-8 rounded-md bg-secondary animate-pulse" />; // Placeholder
   }
 
   return (
