@@ -36,16 +36,22 @@ export function Dashboard() {
     if (user && firestore) {
       // User is logged in, use Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
+      const userData = { 
+        id: user.uid, // Add this line
+        email: user.email, 
+        displayName: user.displayName, 
+        photoURL: user.photoURL 
+      };
       
       // Create user document if it doesn't exist
-      setDoc(userDocRef, { email: user.email, displayName: user.displayName, photoURL: user.photoURL }, { merge: true })
+      setDoc(userDocRef, userData, { merge: true })
         .catch(error => {
             errorEmitter.emit(
               'permission-error',
               new FirestorePermissionError({
                 path: userDocRef.path,
                 operation: 'write',
-                requestResourceData: { email: user.email },
+                requestResourceData: userData,
               })
             );
         });
