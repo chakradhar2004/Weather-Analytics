@@ -16,6 +16,7 @@ interface CityPageProps {
 
 export default function CityPage({ params }: CityPageProps) {
   const dispatch = useAppDispatch();
+  // Decode the city name from the URL
   const cityName = decodeURIComponent(params.name);
   const { favorites } = useAppSelector((state) => state.cities);
   
