@@ -55,14 +55,14 @@ const CityCard = ({ data }: CityCardProps) => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-xl font-medium">{currentCity}</CardTitle>
           <div className="text-4xl">
-            <WeatherIcon condition={data.current.condition} isNight={!data.current.isDay} />
+            <WeatherIcon condition={data.current.condition} isNight={!data.current.isDay} iconUrl={data.current.conditionIcon} width={48} height={48} />
           </div>
         </CardHeader>
         <CardContent>
           <div className="text-6xl font-bold">
             {convertTemperature(data.current.temperature, unit)}°{unit}
           </div>
-          <p className="text-sm text-muted-foreground capitalize">{data.current.condition.replace(/([A-Z])/g, ' $1').trim()}</p>
+          <p className="text-sm text-muted-foreground capitalize">{data.current.condition}</p>
           <div className="mt-4 flex space-x-4 text-sm text-muted-foreground">
             <div className="flex items-center">
               <Droplets className="mr-1 h-4 w-4" />

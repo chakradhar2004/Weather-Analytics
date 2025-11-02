@@ -64,13 +64,13 @@ const CityDetails = ({ weatherData }: CityDetailsProps) => {
         </CardHeader>
         <CardContent className="flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
           <div className="flex items-end gap-4">
-            <WeatherIcon condition={current.condition} isNight={!current.isDay} className="h-20 w-20 text-foreground -mb-2" />
+            <WeatherIcon condition={current.condition} isNight={!current.isDay} iconUrl={current.conditionIcon} className="h-20 w-20 text-foreground -mb-2" width={80} height={80} />
             <div className="text-8xl font-bold">
               {convertTemperature(current.temperature, unit)}°
             </div>
             <div className="text-lg text-muted-foreground mb-3">
               <p className="font-semibold">{unit === 'C' ? 'Celsius' : 'Fahrenheit'}</p>
-              <p className="capitalize">{current.condition.replace(/([A-Z])/g, ' $1').trim()}</p>
+              <p className="capitalize">{current.condition}</p>
             </div>
           </div>
           <DetailedStatsGrid current={current} />

@@ -12,10 +12,11 @@ interface DailyForecastProps {
 
 const DailyForecast = ({ dailyData }: DailyForecastProps) => {
   const { unit } = useSettings();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   // Show today + next 4 days
-  const forecastToShow = dailyData.filter(d => d.date >= today).slice(0, 5);
+  const forecastToShow = dailyData.filter(d => new Date(d.date) >= today).slice(0, 5);
 
   return (
     <div className="space-y-4">
@@ -26,7 +27,7 @@ const DailyForecast = ({ dailyData }: DailyForecastProps) => {
               {new Date(day.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' })}
             </span>
             <div className="w-1/3 flex justify-center">
-              <WeatherIcon condition={day.condition} className="h-6 w-6 text-muted-foreground" />
+              <WeatherIcon condition={day.condition} iconUrl={day.conditionIcon} className="h-6 w-6 text-muted-foreground" width={24} height={24} />
             </div>
             <div className="w-1/3 text-right">
               <span className="font-medium">{convertTemperature(day.maxTemp, unit)}°</span>
