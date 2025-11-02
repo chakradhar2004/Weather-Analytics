@@ -105,7 +105,6 @@ export function Dashboard() {
     }
     // Save to Firestore if user is logged in
     if (user) {
-        // @ts-ignore
         dispatch(saveFavoritesToFirestore());
     }
   };

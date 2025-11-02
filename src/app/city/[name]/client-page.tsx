@@ -42,7 +42,6 @@ export default function ClientPage({ cityName }: ClientPageProps) {
       dispatch(addFavorite(cityToToggle));
     }
     if (user) {
-        // @ts-ignore
         dispatch(saveFavoritesToFirestore());
     }
   };
