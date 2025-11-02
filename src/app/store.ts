@@ -13,8 +13,6 @@ const authReducer = (state = { user: null }, action: any) => {
   }
 };
 
-let firebaseServices: ReturnType<typeof getSdks> | null = null;
-
 export const store = configureStore({
   reducer: {
     cities: citiesReducer,
@@ -27,10 +25,13 @@ export const store = configureStore({
         extraArgument: {
           getFirestore: () => {
             if (typeof window === 'undefined') return null;
-            if (!firebaseServices) {
-                firebaseServices = initializeFirebase();
+            try {
+              const { firestore } = initializeFirebase();
+              return firestore;
+            } catch (error) {
+              console.error('Failed to initialize Firebase in store:', error);
+              return null;
             }
-            return firebaseServices.firestore;
           },
         },
       },

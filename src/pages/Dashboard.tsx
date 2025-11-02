@@ -1,4 +1,6 @@
+
 'use client';
+
 
 import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
@@ -13,31 +15,36 @@ import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-
 export default function Dashboard() {
-  const dispatch = useAppDispatch();
-  const router = useRouter();
-  const { favorites } = useAppSelector((state) => state.cities);
-  
-  const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const dispatch = mounted ? useAppDispatch() : null;
+  const router = mounted ? useRouter() : null;
+  const { favorites } = mounted ? useAppSelector((state) => state.cities) : { favorites: [] };
+
+  const { user, isUserLoading } = mounted ? useUser() : { user: null, isUserLoading: true };
+  const firestore = mounted ? useFirestore() : null;
 
   // Effect to sync favorites from Firestore when user logs in/out
   useEffect(() => {
-    if (isUserLoading || !firestore) return; // Wait for user and firestore to be ready
+    if (!mounted || isUserLoading || !firestore || !dispatch) return; // Wait for user and firestore to be ready
 
     let unsubscribe = () => {};
 
     if (user) {
       // User is logged in, sync with Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userData = { 
+      const userData = {
         id: user.uid,
-        email: user.email, 
-        displayName: user.displayName, 
-        photoURL: user.photoURL 
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL
       };
-      
+
       // Create or update user document, but don't block
       setDoc(userDocRef, userData, { merge: true })
         .catch(error => {
@@ -80,13 +87,13 @@ export default function Dashboard() {
 
     return () => unsubscribe(); // Cleanup listener on unmount or user change
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isUserLoading, firestore, dispatch]);
+  }, [user, isUserLoading, firestore, dispatch, mounted]);
 
 
   // This effect fetches weather data for favorites whenever they change
   useEffect(() => {
-    if (favorites.length === 0) return;
-    
+    if (!mounted || favorites.length === 0 || !dispatch) return;
+
     const fetchAllWeather = () => {
       favorites.forEach((city) => {
         dispatch(fetchWeatherForCity(city.name));
@@ -98,10 +105,11 @@ export default function Dashboard() {
     const interval = setInterval(fetchAllWeather, 60000); // Poll every 60 seconds
 
     return () => clearInterval(interval);
-  }, [favorites, dispatch]);
+  }, [favorites, dispatch, mounted]);
 
 
   const handleToggleFavorite = (city: City) => {
+    if (!dispatch) return;
     const isFav = favorites.some(fav => fav.id === city.id);
     if (isFav) {
       dispatch(removeFavorite(city.id));
@@ -115,10 +123,10 @@ export default function Dashboard() {
   };
 
   const handleCardClick = (city: City) => {
-      router.push(`/city/${encodeURIComponent(city.name)}`);
+      if (router) router.push(`/city/${encodeURIComponent(city.name)}`);
   }
 
-  if (isUserLoading) {
+  if (!mounted || isUserLoading) {
     return null; // or a loading spinner
   }
 
