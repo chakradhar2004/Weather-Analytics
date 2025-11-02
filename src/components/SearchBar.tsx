@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -94,4 +93,3 @@ export default function SearchBar({ onCitySelect }: SearchBarProps) {
     </Command>
   );
 }
-    

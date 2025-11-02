@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import { CloudSun } from 'lucide-react';
@@ -42,4 +41,3 @@ const AppHeader = () => {
 };
 
 export default AppHeader;
-    
