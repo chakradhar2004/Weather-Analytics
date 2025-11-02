@@ -1,8 +1,12 @@
-import { getWeatherData } from '@/app/actions';
-import CityDetails from '@/components/city-details';
+
+'use client';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
+import { addFavorite, removeFavorite } from '@/features/cities/citiesSlice';
+import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
+import CityDetail from '@/components/CityDetail';
+import type { City } from '@/lib/types';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface CityPageProps {
   params: {
@@ -10,48 +14,59 @@ interface CityPageProps {
   };
 }
 
-export async function generateMetadata({ params }: CityPageProps) {
+export default function CityPage({ params }: CityPageProps) {
+  const dispatch = useAppDispatch();
   const cityName = decodeURIComponent(params.name);
-  return {
-    title: `Weather in ${cityName} | WeatherWise`,
+  const { favorites } = useAppSelector((state) => state.cities);
+  
+  // Local state to hold city object, as it's not in the store initially
+  const [city, setCity] = useState<City | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchWeatherForCity(cityName));
+    // We create a temporary city object for the detail view.
+    // A more robust solution might fetch city details from an endpoint if needed.
+    const tempCityObject = {
+        id: Date.now(), // Temporary ID
+        name: cityName,
+        country: '', // Country is not available from URL param alone
+    };
+    setCity(tempCityObject);
+
+  }, [dispatch, cityName]);
+
+  const isFavorite = city ? favorites.some(fav => fav.name === city.name) : false;
+
+  const handleToggleFavorite = (cityToToggle: City) => {
+    if (isFavorite) {
+      const favCity = favorites.find(f => f.name === cityToToggle.name);
+      if (favCity) {
+        dispatch(removeFavorite(favCity.id));
+      }
+    } else {
+      // We may need more city details to add to favorites.
+      // For now, we use what we have.
+      dispatch(addFavorite(cityToToggle));
+    }
   };
-}
 
-export default async function CityPage({ params }: CityPageProps) {
-  const cityName = decodeURIComponent(params.name);
-  const weatherData = await getWeatherData(cityName);
+  const weatherData = useAppSelector(state => state.weather.data[cityName]);
+  const isLoading = useAppSelector(state => state.weather.loading[cityName] === 'pending');
 
-  if (!weatherData) {
-    notFound();
+  if (!isLoading && !weatherData) {
+      notFound();
   }
 
-  const cityImageId = cityName.toLowerCase().replace(' ', '-');
-  const cityImage = PlaceHolderImages.find(img => img.id === cityImageId);
-
+  if (!city) {
+      return null; // or a loading state
+  }
+  
   return (
-    <div>
-      {cityImage && (
-        <div className="relative h-64 md:h-80 w-full">
-          <Image
-            src={cityImage.imageUrl}
-            alt={cityImage.description}
-            fill
-            className="object-cover"
-            data-ai-hint={cityImage.imageHint}
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-      )}
-      <div
-        className={
-          cityImage
-            ? 'container mx-auto p-4 md:p-8 -mt-32 relative z-10'
-            : 'container mx-auto p-4 md:p-8'
-        }
-      >
-        <CityDetails weatherData={weatherData} />
-      </div>
-    </div>
+    <CityDetail 
+        city={city}
+        isFavorite={isFavorite}
+        onFavClick={handleToggleFavorite}
+    />
   );
 }
+    

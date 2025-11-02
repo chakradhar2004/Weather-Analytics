@@ -1,13 +1,16 @@
-import { clsx, type ClassValue } from "clsx"
+
+import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function convertTemperature(tempInCelsius: number, unit: 'C' | 'F'): number {
-  if (unit === 'F') {
-    return Math.round((tempInCelsius * 9/5) + 32);
+export function convertTemperature(temp: number, unit: 'metric' | 'imperial'): number {
+  // Assuming input is always Celsius from the API for simplicity
+  if (unit === 'imperial') {
+    return Math.round((temp * 9/5) + 32);
   }
-  return Math.round(tempInCelsius);
+  return Math.round(temp);
 }
+    

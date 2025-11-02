@@ -1,10 +1,21 @@
+
+'use client';
 import Link from 'next/link';
 import { CloudSun } from 'lucide-react';
-import SearchBar from './search-bar';
+import SearchBar from './SearchBar'; // Corrected import
+import { useAppDispatch } from '@/hooks/redux-hooks';
+import { addFavorite } from '@/features/cities/citiesSlice';
+import type { City } from '@/lib/types';
 import UnitToggle from './unit-toggle';
-import AuthButton from './auth-button';
+
 
 const AppHeader = () => {
+  const dispatch = useAppDispatch();
+  
+  const handleCitySelect = (city: City) => {
+    dispatch(addFavorite(city));
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -16,11 +27,10 @@ const AppHeader = () => {
         </Link>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            <SearchBar />
+            <SearchBar onCitySelect={handleCitySelect} />
           </div>
           <nav className="flex items-center space-x-2">
             <UnitToggle />
-            <AuthButton />
           </nav>
         </div>
       </div>
@@ -29,3 +39,4 @@ const AppHeader = () => {
 };
 
 export default AppHeader;
+    

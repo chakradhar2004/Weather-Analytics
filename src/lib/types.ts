@@ -1,92 +1,66 @@
-export type WeatherCondition =
-  | 'Sunny'
-  | 'Clear'
-  | 'Partly cloudy'
-  | 'Cloudy'
-  | 'Overcast'
-  | 'Mist'
-  | 'Patchy rain possible'
-  | 'Patchy snow possible'
-  | 'Patchy sleet possible'
-  | 'Patchy freezing drizzle possible'
-  | 'Thundery outbreaks possible'
-  | 'Blowing snow'
-  | 'Blizzard'
-  | 'Fog'
-  | 'Freezing fog'
-  | 'Patchy light drizzle'
-  | 'Light drizzle'
-  | 'Freezing drizzle'
-  | 'Heavy freezing drizzle'
-  | 'Patchy light rain'
-  | 'Light rain'
-  | 'Moderate rain at times'
-  | 'Moderate rain'
-  | 'Heavy rain at times'
-  | 'Heavy rain'
-  | 'Light freezing rain'
-  | 'Moderate or heavy freezing rain'
-  | 'Light sleet'
-  | 'Moderate or heavy sleet'
-  | 'Patchy light snow'
-  | 'Light snow'
-  | 'Patchy moderate snow'
-  | 'Moderate snow'
-  | 'Patchy heavy snow'
-  | 'Heavy snow'
-  | 'Ice pellets'
-  | 'Light rain shower'
-  | 'Moderate or heavy rain shower'
-  | 'Torrential rain shower'
-  | 'Light sleet showers'
-  | 'Moderate or heavy sleet showers'
-  | 'Light snow showers'
-  | 'Moderate or heavy snow showers'
-  | 'Light showers of ice pellets'
-  | 'Moderate or heavy showers of ice pellets'
-  | 'Patchy light rain with thunder'
-  | 'Moderate or heavy rain with thunder'
-  | 'Patchy light snow with thunder'
-  | 'Moderate or heavy snow with thunder';
 
-export interface CurrentWeather {
-  city: string;
+// A slimmed-down version for search results
+export interface CitySearchResult {
+  id: number;
+  name: string;
+  region: string;
   country: string;
-  temperature: number; // in Celsius
-  condition: WeatherCondition;
-  humidity: number;
-  windSpeed: number; // kph
-  pressure: number; // millibars
-  uvIndex: number;
-  dewPoint: number; // in Celsius, will be calculated
-  isDay: boolean; // true for day, false for night
-  conditionIcon: string;
-}
-
-export interface HourlyForecast {
-  time: string; // "HH:00"
-  temperature: number; // in Celsius
-  condition: WeatherCondition;
-  precipitation: number; // mm
-  conditionIcon: string;
-}
-
-export interface DailyForecast {
-  date: string; // "YYYY-MM-DD"
-  day: string; // "Friday"
-  maxTemp: number; // in Celsius
-  minTemp: number; // in Celsius
-  condition: WeatherCondition;
-  conditionIcon: string;
+  lat: number;
+  lon: number;
+  url: string;
 }
 
 export interface WeatherData {
-  current: CurrentWeather;
-  hourly: HourlyForecast[];
-  daily: DailyForecast[];
+  current: {
+    temp_c: number;
+    temp_f: number;
+    condition: {
+      text: string;
+      icon: string;
+    };
+    humidity: number;
+    wind_kph: number;
+    wind_mph: number;
+    pressure_mb: number;
+    uv: number;
+    is_day: number;
+    dewpoint_c: number;
+    dewpoint_f: number;
+  };
+  forecast: {
+    forecastday: {
+      date: string;
+      day: {
+        maxtemp_c: number;
+        maxtemp_f: number;
+        mintemp_c: number;
+        mintemp_f: number;
+        condition: {
+          text: string;
+          icon: string;
+        };
+      };
+      hour: {
+        time: string;
+        temp_c: number;
+        temp_f: number;
+        precip_mm: number;
+        condition: {
+          text: string;
+          icon: string;
+        };
+      }[];
+    }[];
+  };
+  location: {
+    name: string;
+    country: string;
+  };
 }
 
 export interface City {
+  id: number;
   name: string;
   country: string;
 }
+    

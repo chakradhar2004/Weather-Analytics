@@ -1,15 +1,11 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import { cn } from '@/lib/utils';
-import { Toaster } from '@/components/ui/toaster';
-import { SettingsProvider } from '@/context/settings-provider';
-import AppHeader from '@/components/app-header';
-import { FirebaseClientProvider } from '@/firebase';
 
-export const metadata: Metadata = {
-  title: 'WeatherWise Dashboard',
-  description: 'An intelligent weather analytics dashboard.',
-};
+'use client';
+
+import './globals.css';
+import { store } from '@/app/store';
+import { Provider } from 'react-redux';
+import { Toaster } from '@/components/ui/toaster';
+import AppHeader from '@/components/app-header';
 
 export default function RootLayout({
   children,
@@ -31,20 +27,15 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={cn(
-          'min-h-screen bg-background font-body antialiased'
-        )}
+        className={'min-h-screen bg-background font-body antialiased'}
       >
-        <FirebaseClientProvider>
-          <SettingsProvider>
-            <div className="relative flex min-h-screen flex-col">
-              <AppHeader />
-              <main className="flex-1">{children}</main>
-            </div>
-            <Toaster />
-          </SettingsProvider>
-        </FirebaseClientProvider>
+        <Provider store={store}>
+          <div className="relative flex min-h-screen flex-col">
+            <AppHeader />
+            <main className="flex-1">{children}</main>
+          </div>
+          <Toaster />
+        </Provider>
       </body>
     </html>
-  );
-}
+    

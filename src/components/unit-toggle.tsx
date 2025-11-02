@@ -1,21 +1,24 @@
+
 'use client';
 
-import { useSettings } from '@/hooks/use-settings';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
+import { setUnit } from '@/features/cities/citiesSlice';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 
 const UnitToggle = () => {
-  const { unit, setUnit } = useSettings();
+  const dispatch = useAppDispatch();
+  const { unit } = useAppSelector((state) => state.cities);
 
   return (
     <div className="flex items-center rounded-md bg-secondary p-1">
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setUnit('C')}
+        onClick={() => dispatch(setUnit('metric'))}
         className={cn(
           'px-2.5 py-1 h-auto text-sm',
-          unit === 'C' && 'bg-background shadow-sm'
+          unit === 'metric' && 'bg-background shadow-sm'
         )}
       >
         °C
@@ -23,10 +26,10 @@ const UnitToggle = () => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setUnit('F')}
+        onClick={() => dispatch(setUnit('imperial'))}
         className={cn(
           'px-2.5 py-1 h-auto text-sm',
-          unit === 'F' && 'bg-background shadow-sm'
+          unit === 'imperial' && 'bg-background shadow-sm'
         )}
       >
         °F
@@ -36,3 +39,4 @@ const UnitToggle = () => {
 };
 
 export default UnitToggle;
+    
