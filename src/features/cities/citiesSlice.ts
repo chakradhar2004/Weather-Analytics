@@ -8,7 +8,7 @@ type State = {
 }
 
 const getInitialFavorites = (): City[] => {
-  if (typeof window === 'undefined') return [{ id: 1729547, name: 'Hyderabad', country: 'India' }];
+  if (typeof window === 'undefined') return [{ id: 1269843, name: 'Hyderabad', country: 'India' }];
   try {
     const stored = localStorage.getItem('fav_cities');
     if (stored) {
@@ -18,7 +18,7 @@ const getInitialFavorites = (): City[] => {
       }
     }
   } catch {}
-  return [{ id: 1729547, name: 'Hyderabad', country: 'India' }]; // Default
+  return [{ id: 1269843, name: 'Hyderabad', country: 'India' }]; // Default
 };
 
 

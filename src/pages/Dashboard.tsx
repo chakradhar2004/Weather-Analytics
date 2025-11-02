@@ -7,17 +7,17 @@ import { addFavorite, removeFavorite } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 import CityCard from '@/components/CityCard';
 import CityDetail from '@/components/CityDetail';
-import SearchBar from '@/components/SearchBar';
 import type { City } from '@/lib/types';
-import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog"
+import { useRouter } from 'next/navigation';
 
 export function Dashboard() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { favorites } = useAppSelector((state) => state.cities);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
 
@@ -51,6 +51,10 @@ export function Dashboard() {
 
   const isCityFavorite = (cityId: number) => favorites.some(fav => fav.id === cityId);
 
+  const handleCardClick = (city: City) => {
+      router.push(`/city/${encodeURIComponent(city.name)}`);
+  }
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold tracking-tight mb-6">My Cities</h1>
@@ -71,24 +75,11 @@ export function Dashboard() {
               city={city}
               isFavorite={true}
               onFavClick={handleToggleFavorite}
-              onCardClick={() => setSelectedCity(city)}
+              onCardClick={handleCardClick}
             />
           ))}
         </div>
       )}
-
-      <Dialog open={!!selectedCity} onOpenChange={(isOpen) => !isOpen && setSelectedCity(null)}>
-        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
-            {selectedCity && (
-                <CityDetail 
-                    city={selectedCity} 
-                    isFavorite={isCityFavorite(selectedCity.id)}
-                    onFavClick={handleToggleFavorite}
-                />
-            )}
-        </DialogContent>
-      </Dialog>
-
     </div>
   );
 }
