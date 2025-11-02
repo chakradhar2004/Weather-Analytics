@@ -1,0 +1,161 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the WeatherWise Dashboard application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "googleId": {
+          "type": "string",
+          "description": "The Google ID of the user, obtained during sign-in."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "favoriteCityIds": {
+          "type": "array",
+          "description": "References to FavoriteCity entities. (Relationship: User 1:N FavoriteCity)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "googleId",
+        "email"
+      ]
+    },
+    "FavoriteCity": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FavoriteCity",
+      "type": "object",
+      "description": "Represents a city that a user has marked as a favorite.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FavoriteCity entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N FavoriteCity)"
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Identifier for a city (likely from the weather API, could be name or ID)."
+        },
+        "cityName": {
+          "type": "string",
+          "description": "Name of the city."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "cityId",
+        "cityName"
+      ]
+    },
+    "WeatherCache": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeatherCache",
+      "type": "object",
+      "description": "Represents cached weather data to reduce API calls.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WeatherCache entity."
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Identifier for the city (likely from the weather API)."
+        },
+        "weatherData": {
+          "type": "string",
+          "description": "JSON string containing the cached weather data."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Timestamp of the last time the cache was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "cityId",
+        "weatherData",
+        "lastUpdated"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information.  Uses path-based ownership for private data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/favorite_cities/{favoriteCityId}",
+        "definition": {
+          "entityName": "FavoriteCity",
+          "schema": {
+            "$ref": "#/backend/entities/FavoriteCity"
+          },
+          "description": "Stores the user's favorite cities. Uses path-based ownership; only the user can access their favorite cities.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "favoriteCityId",
+              "description": "The unique identifier of the favorite city."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/weather_cache/{cityId}",
+        "definition": {
+          "entityName": "WeatherCache",
+          "schema": {
+            "$ref": "#/backend/entities/WeatherCache"
+          },
+          "description": "Stores cached weather data for each city, updated every 60 seconds. The 'cityId' serves as the document ID. Security rules should limit writes to a trusted server and allow public read access. This structure is optimized for fast retrieval of cached weather data.",
+          "params": [
+            {
+              "name": "cityId",
+              "description": "The unique identifier of the city for which weather data is cached."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the WeatherWise Dashboard application, focusing on real-time data fetching, caching, and Google Sign-In. It follows the principles of Authorization Independence and Structural Segregation to ensure security and scalability.  The design uses hierarchical paths for user-owned data (favorite cities), a dedicated collection for caching weather data, and enforces a consistent naming convention.  Caching is implemented via a dedicated collection `weather_cache`, with documents expiring after 60 seconds.  This directly addresses the requirement for real-time updates and reduced API calls.  The user's favorite cities are stored in a subcollection under the user's document, enabling efficient querying of a user's favorites. Authorization Independence is achieved through path-based ownership for private data and existence checks in security rules for administrative roles (if any are implemented in the future).  This structure supports the required QAPs by ensuring that `list` operations are secure, as access to user data is restricted to the authenticated user, and weather cache data is publicly accessible but updated frequently."
+  }
+}
