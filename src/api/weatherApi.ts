@@ -47,7 +47,7 @@ export async function fetchWithCache(url: string, force = false) {
 
 export const searchCities = (query: string) => {
     if (query.length < 2) return Promise.resolve([]);
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
+    if (!API_KEY) {
       console.error("WeatherAPI key is not set.");
       return Promise.reject("API Key not configured.");
     }
@@ -56,7 +56,7 @@ export const searchCities = (query: string) => {
 };
 
 export const getWeatherData = (city: string, days = 5) => {
-    if (!API_KEY || API_KEY === 'YOUR_API_KEY') {
+    if (!API_KEY ) {
       console.error("WeatherAPI key is not set.");
       return Promise.reject("API Key not configured.");
     }
