@@ -54,9 +54,14 @@ export function Dashboard() {
       unsubscribe = onSnapshot(userDocRef, (docSnap) => {
         if (docSnap.exists()) {
           const firestoreFavorites = docSnap.data()?.favoriteCities || [];
-          // Only dispatch if firestore data is different from redux state to avoid loops
-          if (JSON.stringify(firestoreFavorites) !== JSON.stringify(favorites)) {
-            dispatch(setFavorites(firestoreFavorites));
+          if (firestoreFavorites.length === 0 && favorites.length > 0) {
+            // Firestore is empty, but we have local favorites, upload them
+            dispatch(saveFavoritesToFirestore());
+          } else {
+            // Sync from Firestore
+            if (JSON.stringify(firestoreFavorites) !== JSON.stringify(favorites)) {
+              dispatch(setFavorites(firestoreFavorites));
+            }
           }
         }
       }, (error) => {
@@ -118,16 +123,25 @@ export function Dashboard() {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <h1 className="text-3xl font-bold tracking-tight mb-6">My Cities</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="container mx-auto p-4 md:p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">My Cities</h1>
+          <p className="text-gray-600 dark:text-gray-300">Your personalized weather dashboard</p>
+        </div>
 
       {favorites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center py-16 px-4 border-2 border-dashed rounded-lg">
-          <Search className="h-12 w-12 text-muted-foreground mb-4" />
-          <h2 className="text-xl font-semibold mb-2">No Favorite Cities</h2>
-          <p className="text-muted-foreground mb-4 max-w-sm">
-            You haven't added any cities to your dashboard. Use the search bar to find and add cities.
+        <div className="flex flex-col items-center justify-center text-center py-20 px-6 border-2 border-dashed rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+          <div className="bg-white dark:bg-gray-800 rounded-full p-4 mb-6 shadow-lg">
+            <Search className="h-12 w-12 text-blue-500" />
+          </div>
+          <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">No Favorite Cities Yet</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md leading-relaxed">
+            Start building your personalized weather dashboard by searching for cities above and adding them to your favorites.
           </p>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            💡 Tip: Try searching for your current location or favorite destinations
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -142,6 +156,7 @@ export function Dashboard() {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

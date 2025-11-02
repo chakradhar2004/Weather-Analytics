@@ -55,12 +55,12 @@ export default function SearchBar({ onCitySelect }: SearchBarProps) {
   return (
     <Command shouldFilter={false} className="relative max-w-sm">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <CommandInput
           value={query}
           onValueChange={setQuery}
           placeholder="Search for a city..."
-          className="pl-9 h-9"
+          className="pl-9 h-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           onFocus={() => query.length > 1 && setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 150)}
         />

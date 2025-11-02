@@ -33,8 +33,8 @@ export default function CityCard({ city, isFavorite, onFavClick, onCardClick }: 
   const displayTemp = convertTemperature(data.current[tempUnit], unit);
 
   return (
-    <Card 
-      className="relative overflow-hidden h-full flex flex-col justify-between transition-transform duration-200 hover:scale-105 cursor-pointer"
+    <Card
+      className="relative overflow-hidden h-full flex flex-col justify-between transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer border-0 shadow-md bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900"
       onClick={() => onCardClick(city)}
     >
       <Button
