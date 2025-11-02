@@ -21,7 +21,6 @@ export default function ClientPage({ cityName }: ClientPageProps) {
   useEffect(() => {
     dispatch(fetchWeatherForCity(cityName));
     // We create a temporary city object for the detail view.
-    // A more robust solution might fetch city details from an endpoint if needed.
     const tempCityObject = {
         id: Date.now(), // Temporary ID
         name: cityName,
@@ -47,19 +46,28 @@ export default function ClientPage({ cityName }: ClientPageProps) {
   };
 
   const weatherData = useAppSelector(state => state.weather.data[cityName]);
-  const isLoading = useAppSelector(state => state.weather.loading[cityName] === 'pending');
+  const weatherStatus = useAppSelector(state => state.weather.loading[cityName]);
 
-  if (!isLoading && !weatherData) {
+  if (weatherStatus === 'failed') {
       notFound();
   }
 
-  if (!city) {
-      return null; // or a loading state
+  // Show a loading state or skeleton while data is being fetched
+  if (weatherStatus === 'pending' || !weatherData) {
+    // Using the skeleton from CityDetail for consistency
+    return <CityDetail city={null} isFavorite={false} onFavClick={() => {}} />;
+  }
+  
+  // We can only be sure about the city object after weatherData is loaded.
+  const finalCity: City = {
+      id: city?.id || Date.now(),
+      name: weatherData.location.name,
+      country: weatherData.location.country,
   }
   
   return (
     <CityDetail 
-        city={city}
+        city={finalCity}
         isFavorite={isFavorite}
         onFavClick={handleToggleFavorite}
     />

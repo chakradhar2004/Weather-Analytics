@@ -1,9 +1,8 @@
-
 'use client';
 
 import React from 'react';
 import { useAppSelector } from '@/hooks/redux-hooks';
-import type { City, WeatherData } from '@/lib/types';
+import type { City } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
 import { Star, Droplets, Wind, Gauge, Sun } from 'lucide-react';
@@ -15,7 +14,7 @@ import { format } from 'date-fns';
 import { Skeleton } from './ui/skeleton';
 
 interface CityDetailProps {
-  city: City;
+  city: City | null;
   isFavorite: boolean;
   onFavClick: (city: City) => void;
 }
@@ -34,14 +33,16 @@ const ChartTooltipContent = ({ active, payload, label, unit }: any) => {
 };
 
 export default function CityDetail({ city, isFavorite, onFavClick }: CityDetailProps) {
+  const cityName = city?.name;
   const { data, loading } = useAppSelector((state) => ({
-    data: state.weather.data[city.name],
-    loading: state.weather.loading[city.name] === 'pending',
+    data: cityName ? state.weather.data[cityName] : null,
+    loading: cityName ? state.weather.loading[cityName] === 'pending' : true,
   }));
+
   const { unit } = useAppSelector((state) => state.cities);
   const { resolvedTheme } = useTheme();
 
-  if (loading || !data) {
+  if (loading || !data || !city) {
     return (
         <div className="container mx-auto p-4 md:p-8 space-y-6">
             <Skeleton className="h-48 w-full" />
@@ -137,4 +138,3 @@ export default function CityDetail({ city, isFavorite, onFavClick }: CityDetailP
     </div>
   );
 }
-    
