@@ -70,5 +70,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  * {
+    @apply caret-transparent;
+  }
 }
     
