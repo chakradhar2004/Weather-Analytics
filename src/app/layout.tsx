@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
 import { SettingsProvider } from '@/context/settings-provider';
 import AppHeader from '@/components/app-header';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'WeatherWise Dashboard',
@@ -34,13 +35,15 @@ export default function RootLayout({
           'min-h-screen bg-background font-body antialiased'
         )}
       >
-        <SettingsProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <AppHeader />
-            <main className="flex-1">{children}</main>
-          </div>
-          <Toaster />
-        </SettingsProvider>
+        <FirebaseClientProvider>
+          <SettingsProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <AppHeader />
+              <main className="flex-1">{children}</main>
+            </div>
+            <Toaster />
+          </SettingsProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );

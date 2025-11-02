@@ -71,6 +71,10 @@
         "cityId": {
           "type": "string",
           "description": "Reference to City. (Relationship: City 1:N FavoriteCity)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the city."
         }
       },
       "required": [
@@ -168,8 +172,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "google.com"
     ]
   },
   "firestore": {

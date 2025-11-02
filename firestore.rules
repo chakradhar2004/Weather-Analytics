@@ -28,22 +28,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * @description Controls access to user profile documents.
-     * @path /users/{userId}
-     * @allow (create) User with ID 'user123' can create their own profile.
-     * @allow (get, update, delete) User with ID 'user123' can read, update, and delete their own profile.
-     * @deny (get, update, delete) User with ID 'user456' cannot read, update, or delete User 'user123' profile.
-     * @principle Enforces document ownership for user profiles.
-     */
-    match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
 
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
+    match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
       allow create: if isOwner(userId) && request.resource.data.id == userId;
@@ -51,61 +44,22 @@ service cloud.firestore {
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Controls access to city documents.
-     * @path /cities/{cityId}
-     * @allow (get, list) Any user can read city data.
-     * @deny (create, update, delete) No one can create, update, or delete city data (admin only).
-     * @principle Allows public read access to city information.
-     */
     match /cities/{cityId} {
       allow get, list: if true;
       allow create, update, delete: if false;
     }
 
-    /**
-     * @description Controls access to favorite city documents for a user.
-     * @path /users/{userId}/favoriteCities/{favoriteCityId}
-     * @allow (create) User with ID 'user123' can add a favorite city to their profile.
-     * @allow (get, list, update, delete) User with ID 'user123' can read, update, and delete their own favorite cities.
-     * @deny (get, update, delete) User with ID 'user456' cannot read, update, or delete User 'user123' favorite cities.
-     * @principle Enforces document ownership for user's favorite cities.
-     */
     match /users/{userId}/favoriteCities/{favoriteCityId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-
-        function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list, delete: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.userId == userId;
     }
 
-    /**
-     * @description Controls access to weather data documents.
-     * @path /weatherData/{weatherDataId}
-     * @allow (get, list) Any user can read weather data.
-     * @deny (create, update, delete) No one can create, update, or delete weather data (admin only).
-     * @principle Allows public read access to weather data.
-     */
     match /weatherData/{weatherDataId} {
       allow get, list: if true;
       allow create, update, delete: if false;
     }
 
-    /**
-     * @description Controls access to forecast documents.
-     * @path /forecasts/{forecastId}
-     * @allow (get, list) Any user can read forecast data.
-     * @deny (create, update, delete) No one can create, update, or delete forecast data (admin only).
-     * @principle Allows public read access to forecast data.
-     */
     match /forecasts/{forecastId} {
       allow get, list: if true;
       allow create, update, delete: if false;
