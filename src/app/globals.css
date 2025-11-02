@@ -70,7 +70,7 @@
   body {
     @apply bg-background text-foreground;
   }
-  * {
+  *:not(input):not(textarea) {
     @apply caret-transparent;
   }
 }
