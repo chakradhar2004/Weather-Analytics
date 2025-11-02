@@ -1,11 +1,12 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
-import { addFavorite, removeFavorite } from '@/features/cities/citiesSlice';
+import { addFavorite, removeFavorite, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 import CityDetail from '@/components/CityDetail';
 import type { City } from '@/lib/types';
 import { notFound } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 interface ClientPageProps {
   cityName: string;
@@ -13,22 +14,25 @@ interface ClientPageProps {
 
 export default function ClientPage({ cityName }: ClientPageProps) {
   const dispatch = useAppDispatch();
+  const { user } = useUser();
+
+  const weatherData = useAppSelector(state => state.weather.data[cityName]);
+  const weatherStatus = useAppSelector(state => state.weather.loading[cityName]);
   const { favorites } = useAppSelector((state) => state.cities);
-  
-  // Local state to hold city object, as it's not in the store initially
-  const [city, setCity] = useState<City | null>(null);
 
   useEffect(() => {
-    dispatch(fetchWeatherForCity(cityName));
-    // We create a temporary city object for the detail view.
-    const tempCityObject = {
-        id: Date.now(), // Temporary ID
-        name: cityName,
-        country: '', // Country is not available from URL param alone
-    };
-    setCity(tempCityObject);
+    // Fetch weather data if it's not already loading or present
+    if (!weatherData && weatherStatus !== 'pending') {
+      dispatch(fetchWeatherForCity(cityName));
+    }
+  }, [dispatch, cityName, weatherData, weatherStatus]);
 
-  }, [dispatch, cityName]);
+  // Derive city and favorite status from weather data and favorites list
+  const city: City | undefined = weatherData ? {
+    id: weatherData.location.lon * 100 + weatherData.location.lat * 100, // Create a somewhat unique ID
+    name: weatherData.location.name,
+    country: weatherData.location.country,
+  } : undefined;
 
   const isFavorite = city ? favorites.some(fav => fav.name === city.name) : false;
 
@@ -39,35 +43,26 @@ export default function ClientPage({ cityName }: ClientPageProps) {
         dispatch(removeFavorite(favCity.id));
       }
     } else {
-      // We may need more city details to add to favorites.
-      // For now, we use what we have.
       dispatch(addFavorite(cityToToggle));
     }
+    if (user) {
+        // @ts-ignore
+        dispatch(saveFavoritesToFirestore());
+    }
   };
-
-  const weatherData = useAppSelector(state => state.weather.data[cityName]);
-  const weatherStatus = useAppSelector(state => state.weather.loading[cityName]);
 
   if (weatherStatus === 'failed') {
       notFound();
   }
 
   // Show a loading state or skeleton while data is being fetched
-  if (weatherStatus === 'pending' || !weatherData) {
-    // Using the skeleton from CityDetail for consistency
+  if (weatherStatus === 'pending' || !city) {
     return <CityDetail city={null} isFavorite={false} onFavClick={() => {}} />;
   }
-  
-  // We can only be sure about the city object after weatherData is loaded.
-  const finalCity: City = {
-      id: city?.id || Date.now(),
-      name: weatherData.location.name,
-      country: weatherData.location.country,
-  }
-  
+
   return (
     <CityDetail 
-        city={finalCity}
+        city={city}
         isFavorite={isFavorite}
         onFavClick={handleToggleFavorite}
     />
