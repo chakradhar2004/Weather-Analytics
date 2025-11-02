@@ -2,66 +2,135 @@
  * @fileoverview Firestore Security Rules for WeatherWise Dashboard.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user profiles and their favorite cities.
- * Weather data is publicly readable but only writable by a trusted source (not yet implemented in these prototype rules).
+ * This ruleset enforces a strict user-ownership model for user-specific data
+ * (favorite cities), while allowing public read access to weather data and city
+ * information. It leverages path-based authorization and data denormalization
+ * to ensure secure and efficient access control.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profile information, including favorite cities.
- * - /weather_cache/{cityId}: Stores cached weather data for each city.
+ * - /users/{userId}: Stores user profile information.
+ * - /users/{userId}/favorite_cities/{favoriteCityId}: Stores a user's favorite
+ *   cities. Ownership is enforced via the path.
+ * - /weather_data/{weatherDataId}: Stores weather data for different cities.
+ *   Publicly readable.
+ * - /cities/{cityId}: Stores city information. Publicly readable.
  *
  * Key Security Decisions:
- * - Users can only read and write their own user document.
- * - Weather data is publicly readable.
- * - Write access to weather data should eventually be restricted to a trusted server.
+ * - Users can only read and write their own user documents and favorite city
+ *   documents.
+ * - Weather data and city information are publicly readable but not writable
+ *   directly by users.  Write access to `/weather_data` and `/cities` is implicitly denied.
+ * - User listing is disallowed.
  *
  * Denormalization for Authorization:
- *  - User data, including favorites, is stored in a single document keyed by `userId` to enforce ownership without extra lookups.
- *  - The `cityId` serves as document ID for `weather_cache` to optimize lookups.
+ * - The /users/{userId}/favorite_cities/{favoriteCityId} path inherently
+ *   denormalizes the userId onto the FavoriteCity document, avoiding the need
+ *   for get() calls to verify ownership.
  *
  * Structural Segregation:
- *  - Public weather data is stored in a separate top-level collection (`weather_cache`) to allow for public `list` operations without exposing private user data.
+ * - User-specific data (favorite cities) is stored in a private subcollection
+ *   under the user's document, while general data (weather data, cities) is
+ *   stored in public top-level collections.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents.
-     * @path /users/{userId}
-     * @allow (create) - User with ID 'user123' can create their own profile if the document ID matches their UID.
-     *   - Request: auth.uid = 'user123', request.resource.id = 'user123'
-     * @allow (get, update, delete) - User with ID 'user123' can read, update, and delete their own profile.
-     *   - Request: auth.uid = 'user123'
-     * @deny (list) - No user can list all user documents.
-     * @deny (create) - User with ID 'user456' cannot create a profile for 'user123'.
-     *   - Request: auth.uid = 'user456', resource.data.id = 'user123'
-     * @principle Enforces document ownership for all operations.
+     * @description Checks if the request is authenticated.
      */
-    match /users/{userId} {
-      allow get, update, delete: if isOwner(userId);
-      allow list: if false; // Listing all users is not permitted for security and cost reasons.
-      allow create: if isOwner(userId);
-    }
-
-    /**
-     * @description Controls access to cached weather data.
-     * @path /weather_cache/{cityId}
-     * @allow (get, list) - All users can read cached weather data.
-     * @allow (create, update, delete) - No users can write weather cache data. Writes should be restricted to a trusted server.
-     * @principle Allows public read access for weather data, restricts write access.
-     */
-    match /weather_cache/{cityId} {
-      allow get, list: if true;
-      allow create, update, delete: if false; // TODO: Add service account validation once a trusted server is configured.
-    }
-
-    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
 
+    /**
+     * @description Checks if the requested user ID matches the authenticated user's ID.
+     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the user is the owner and the document exists.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for user documents.
+     * @path /users/{userId}
+     * @allow (create) User with ID 'user123' creates their own profile.
+     *   request.auth.uid: 'user123'
+     *   request.resource.data.id: 'user123'
+     * @allow (get) User with ID 'user123' reads their own profile.
+     *   request.auth.uid: 'user123'
+     * @deny (create) User with ID 'user123' tries to create a profile for 'user456'.
+     *   request.auth.uid: 'user123'
+     *   request.resource.data.id: 'user456'
+     * @principle Enforces user-ownership and self-creation for user profiles.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Prevent user enumeration.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for favorite city documents.
+     * @path /users/{userId}/favorite_cities/{favoriteCityId}
+     * @allow (create) User with ID 'user123' adds a favorite city.
+     *   request.auth.uid: 'user123'
+     * @allow (get) User with ID 'user123' reads their favorite city.
+     *   request.auth.uid: 'user123'
+     * @deny (create) User with ID 'user123' tries to add a favorite city to 'user456'.
+     *   request.auth.uid: 'user123'
+     * @principle Enforces user-ownership for favorite cities.
+     */
+    match /users/{userId}/favorite_cities/{favoriteCityId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for weather data documents.
+     * @path /weather_data/{weatherDataId}
+     * @allow (get) Any user can read weather data.
+     *   request.auth.uid: null (anonymous access)
+     * @allow (list) Any user can list weather data.
+     *   request.auth.uid: 'user123'
+     * @deny (create) No user can create weather data directly (implicitly denied).
+     * @principle Weather data is publicly readable, writes are implicitly denied.
+     */
+    match /weather_data/{weatherDataId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Rules for city documents.
+     * @path /cities/{cityId}
+     * @allow (get) Any user can read city data.
+     *   request.auth.uid: null (anonymous access)
+     * @allow (list) Any user can list city data.
+     *   request.auth.uid: 'user123'
+     * @deny (create) No user can create city data directly (implicitly denied).
+     * @principle City data is publicly readable, writes are implicitly denied.
+     */
+    match /cities/{cityId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }

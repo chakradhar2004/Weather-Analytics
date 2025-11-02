@@ -4,31 +4,17 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a user of the WeatherWise Dashboard application.",
+      "description": "Represents a user of the WeatherWise Dashboard.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the User entity, same as Firebase Auth UID."
+          "description": "Unique identifier for the user.",
+          "format": "uuid"
         },
         "email": {
           "type": "string",
-          "description": "The email address of the user.",
+          "description": "Email address of the user.",
           "format": "email"
-        },
-        "displayName": {
-            "type": "string",
-            "description": "The display name of the user."
-        },
-        "photoURL": {
-            "type": "string",
-            "description": "URL of the user's profile picture."
-        },
-        "favoriteCities": {
-          "type": "array",
-          "description": "An array of favorite city objects.",
-          "items": {
-            "$ref": "#/entities/FavoriteCity"
-          }
         }
       },
       "required": [
@@ -36,98 +22,185 @@
         "email"
       ]
     },
-    "FavoriteCity": {
+    "City": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "FavoriteCity",
+      "title": "City",
       "type": "object",
-      "description": "Represents a city that a user has marked as a favorite.",
+      "description": "Represents a city for which weather data is tracked.",
       "properties": {
         "id": {
-          "type": "number",
-          "description": "Unique identifier for the FavoriteCity entity from the weather API."
+          "type": "string",
+          "description": "Unique identifier for the city."
         },
         "name": {
           "type": "string",
           "description": "Name of the city."
         },
-        "country": {
-          "type": "string",
-          "description": "Country of the city."
+        "latitude": {
+          "type": "number",
+          "description": "Latitude of the city."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Longitude of the city."
         }
       },
       "required": [
         "id",
         "name",
-        "country"
+        "latitude",
+        "longitude"
       ]
     },
-    "WeatherCache": {
+    "FavoriteCity": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "WeatherCache",
+      "title": "FavoriteCity",
       "type": "object",
-      "description": "Represents cached weather data to reduce API calls.",
+      "description": "Represents a user's favorite city.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the favorite city entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N FavoriteCity)"
+        },
         "cityId": {
           "type": "string",
-          "description": "Identifier for the city (likely from the weather API)."
-        },
-        "weatherData": {
-          "type": "string",
-          "description": "JSON string containing the cached weather data."
-        },
-        "lastUpdated": {
-          "type": "string",
-          "description": "Timestamp of the last time the cache was updated.",
-          "format": "date-time"
+          "description": "Reference to City. (Relationship: City 1:N FavoriteCity)"
         }
       },
       "required": [
+        "id",
+        "userId",
+        "cityId"
+      ]
+    },
+    "WeatherData": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeatherData",
+      "type": "object",
+      "description": "Represents weather data for a specific city at a specific time.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the weather data entry."
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Reference to City. (Relationship: City 1:N WeatherData)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the weather data was recorded.",
+          "format": "date-time"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Temperature in Celsius or Fahrenheit."
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Humidity percentage."
+        },
+        "windSpeed": {
+          "type": "number",
+          "description": "Wind speed in km/h or mph."
+        },
+        "condition": {
+          "type": "string",
+          "description": "Weather condition (e.g., sunny, cloudy, rainy)."
+        }
+      },
+      "required": [
+        "id",
         "cityId",
-        "weatherData",
-        "lastUpdated"
+        "timestamp",
+        "temperature",
+        "humidity",
+        "windSpeed",
+        "condition"
       ]
     }
   },
   "auth": {
     "providers": [
-      "google.com"
+      "password",
+      "anonymous"
     ]
   },
   "firestore": {
-      "structure": [
-        {
-          "path": "/users/{userId}",
-          "definition": {
-            "entityName": "User",
-            "schema": {
-              "$ref": "#/backend/entities/User"
-            },
-            "description": "Stores user profile information including their favorite cities. Uses path-based ownership; only the user can access their own document.",
-            "params": [
-              {
-                "name": "userId",
-                "description": "The unique identifier of the user, matching their Firebase Auth UID."
-              }
-            ]
-          }
-        },
-        {
-          "path": "/weather_cache/{cityId}",
-          "definition": {
-            "entityName": "WeatherCache",
-            "schema": {
-              "$ref": "#/backend/entities/WeatherCache"
-            },
-            "description": "Stores cached weather data for each city, updated every 60 seconds. The 'cityId' serves as the document ID. Security rules should limit writes to a trusted server and allow public read access. This structure is optimized for fast retrieval of cached weather data.",
-            "params": [
-              {
-                "name": "cityId",
-                "description": "The unique identifier of the city for which weather data is cached."
-              }
-            ]
-          }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection of user documents.  The 'userId' parameter represents the unique identifier for each user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
         }
-      ],
-    "reasoning": "The Firestore structure is designed for the WeatherWise Dashboard. The primary change is storing `favoriteCities` as an array of objects directly within the `User` document in the `/users/{userId}` collection. This simplifies the data model by eliminating the need for a subcollection. This design is efficient for reads, as a single document read fetches all of a user's profile and favorite cities. It's well-suited for scenarios where the number of favorites per user is not excessively large. The rest of the structure remains the same, with `weather_cache` for public data caching."
+      },
+      {
+        "path": "/users/{userId}/favorite_cities/{favoriteCityId}",
+        "definition": {
+          "entityName": "FavoriteCity",
+          "schema": {
+            "$ref": "#/backend/entities/FavoriteCity"
+          },
+          "description": "Subcollection of favorite city documents owned by a specific user. Located under `/users/{userId}` to enforce ownership. No denormalization required as ownership is derived from the path.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "favoriteCityId",
+              "description": "The unique identifier for the favorite city."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/weather_data/{weatherDataId}",
+        "definition": {
+          "entityName": "WeatherData",
+          "schema": {
+            "$ref": "#/backend/entities/WeatherData"
+          },
+          "description": "Collection of weather data documents.",
+          "params": [
+            {
+              "name": "weatherDataId",
+              "description": "The unique identifier for the weather data."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cities/{cityId}",
+        "definition": {
+          "entityName": "City",
+          "schema": {
+            "$ref": "#/backend/entities/City"
+          },
+          "description": "Collection of city documents.  The 'cityId' parameter represents the unique identifier for each city.",
+          "params": [
+            {
+              "name": "cityId",
+              "description": "The unique identifier for the city."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to optimize for security, scalability, and query performance, adhering to the principles of Authorization Independence, Structural Segregation, and Access Modeling.  The error 'FirebaseError: Firebase: Error (auth/operation-not-allowed)' usually points to security rule violations. This data structure anticipates common security requirements and ensures clear authorization boundaries to simplify security rules and improve debuggability.\n\n*   **Authorization Independence:** The structure avoids hierarchical authorization dependencies by denormalizing relevant authorization data.  Specifically, the `FavoriteCity` documents are located under the `/users/{userId}/favorite_cities/{favoriteCityId}` path, making ownership explicit and avoiding the need for `get()` calls to a parent `User` document.  This independence enables atomic operations (transactions/batches) and simplifies security rules.\n*   **Structural Segregation:**  The structure segregates data based on ownership and access patterns. User-specific data (e.g., `FavoriteCity`) is stored under the `/users/{userId}` path, ensuring that security rules can be applied consistently to all documents within that path.\n*   **Access Modeling:** The design uses path-based ownership for private user data (`/users/{userId}/favorite_cities/{favoriteCityId}`).\n*   **QAPs (Rules are not Filters):** The structure enables secure `list` operations. For example, listing a user's favorite cities is done directly on the `/users/{userId}/favorite_cities` collection, which simplifies security rules and avoids filtering based on document content, which is not allowed.\n\nEach entity is stored in its own collection or subcollection, following a consistent naming convention. This approach promotes clarity and simplifies maintenance.\n\n*   `WeatherData` is stored in a top-level `weather_data` collection. Because it doesn't seem to be user specific, it's accessible to all users to visualize current and historical data."
   }
 }
