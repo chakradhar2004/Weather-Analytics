@@ -2,6 +2,9 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // This is a development-only option, it will not be included in production builds.
+  // It allows requests from the specified origins to access the development server.
+  allowedDevOrigins: ["*.cloudworkstations.dev"],
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -23,7 +26,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'https',
+        protocol: 'httpshttps',
         hostname: 'picsum.photos',
         port: '',
         pathname: '/**',
