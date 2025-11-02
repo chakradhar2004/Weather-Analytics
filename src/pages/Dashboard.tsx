@@ -1,32 +1,78 @@
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux-hooks';
-import { addFavorite, removeFavorite, hydrate } from '@/features/cities/citiesSlice';
+import { addFavorite, removeFavorite, setFavorites, hydrate, saveFavoritesToFirestore } from '@/features/cities/citiesSlice';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 import CityCard from '@/components/CityCard';
-import CityDetail from '@/components/CityDetail';
 import type { City } from '@/lib/types';
 import { Search } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog"
 import { useRouter } from 'next/navigation';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 export function Dashboard() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { favorites, hydrated } = useAppSelector((state) => state.cities);
-  const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
 
+  // This effect runs once on mount to hydrate state from localStorage
   useEffect(() => {
     dispatch(hydrate());
   }, [dispatch]);
 
+  // This effect syncs favorites between Firestore and Redux/localStorage
   useEffect(() => {
-    if (!hydrated) return;
+    if (isUserLoading || !hydrated) return;
+
+    let unsubscribe = () => {};
+
+    if (user && firestore) {
+      // User is logged in, use Firestore
+      const userDocRef = doc(firestore, 'users', user.uid);
+      
+      // Create user document if it doesn't exist
+      setDoc(userDocRef, { email: user.email, displayName: user.displayName, photoURL: user.photoURL }, { merge: true })
+        .catch(error => {
+            errorEmitter.emit(
+              'permission-error',
+              new FirestorePermissionError({
+                path: userDocRef.path,
+                operation: 'write',
+                requestResourceData: { email: user.email },
+              })
+            );
+        });
+
+      unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const firestoreFavorites = data.favoriteCities || [];
+          dispatch(setFavorites(firestoreFavorites));
+        }
+      }, (error) => {
+        const contextualError = new FirestorePermissionError({
+          operation: 'get',
+          path: userDocRef.path,
+        });
+        errorEmitter.emit('permission-error', contextualError);
+      });
+    } else {
+      // User is logged out, use localStorage (which is already handled by `hydrate`)
+    }
+
+    return () => unsubscribe();
+  }, [user, isUserLoading, firestore, hydrated, dispatch]);
+
+  // This effect fetches weather data for favorites whenever they change
+  useEffect(() => {
+    if (!hydrated || favorites.length === 0) return;
     
     favorites.forEach((city) => {
       dispatch(fetchWeatherForCity(city.name));
@@ -41,11 +87,7 @@ export function Dashboard() {
     return () => clearInterval(interval);
   }, [favorites, dispatch, hydrated]);
 
-  const handleSelectCity = (city: City) => {
-    dispatch(addFavorite(city));
-    dispatch(fetchWeatherForCity(city.name));
-  };
-  
+
   const handleToggleFavorite = (city: City) => {
     const isFav = favorites.some(fav => fav.id === city.id);
     if (isFav) {
@@ -53,15 +95,17 @@ export function Dashboard() {
     } else {
       dispatch(addFavorite(city));
     }
+    if (user) {
+        // @ts-ignore
+        dispatch(saveFavoritesToFirestore());
+    }
   };
-
-  const isCityFavorite = (cityId: number) => favorites.some(fav => fav.id === cityId);
 
   const handleCardClick = (city: City) => {
       router.push(`/city/${encodeURIComponent(city.name)}`);
   }
 
-  if (!hydrated) {
+  if (!hydrated || isUserLoading) {
     return null; // or a loading spinner
   }
 
@@ -93,4 +137,3 @@ export function Dashboard() {
     </div>
   );
 }
-    

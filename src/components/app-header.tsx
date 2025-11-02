@@ -8,6 +8,7 @@ import type { City } from '@/lib/types';
 import UnitToggle from './unit-toggle';
 import { useRouter } from 'next/navigation';
 import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
+import AuthButton from './auth-button';
 
 
 const AppHeader = () => {
@@ -29,12 +30,13 @@ const AppHeader = () => {
             WeatherWise
           </span>
         </Link>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+        <div className="flex flex-1 items-center justify-end space-x-4">
           <div className="w-full flex-1 md:w-auto md:flex-none">
             <SearchBar onCitySelect={handleCitySelect} />
           </div>
           <nav className="flex items-center space-x-2">
             <UnitToggle />
+            <AuthButton />
           </nav>
         </div>
       </div>

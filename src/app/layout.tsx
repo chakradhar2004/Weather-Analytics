@@ -1,4 +1,3 @@
-
 'use client';
 
 import './globals.css';
@@ -6,6 +5,7 @@ import { store } from '@/app/store';
 import { Provider } from 'react-redux';
 import { Toaster } from '@/components/ui/toaster';
 import AppHeader from '@/components/app-header';
+import { FirebaseClientProvider } from '@/firebase';
 
 export default function RootLayout({
   children,
@@ -30,11 +30,13 @@ export default function RootLayout({
         className={'min-h-screen bg-background font-body antialiased'}
       >
         <Provider store={store}>
-          <div className="relative flex min-h-screen flex-col">
-            <AppHeader />
-            <main className="flex-1">{children}</main>
-          </div>
-          <Toaster />
+          <FirebaseClientProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <AppHeader />
+              <main className="flex-1">{children}</main>
+            </div>
+            <Toaster />
+          </FirebaseClientProvider>
         </Provider>
       </body>
     </html>
