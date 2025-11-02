@@ -7,6 +7,7 @@ import { addFavorite } from '@/features/cities/citiesSlice';
 import type { City } from '@/lib/types';
 import UnitToggle from './unit-toggle';
 import { useRouter } from 'next/navigation';
+import { fetchWeatherForCity } from '@/features/weather/weatherSlice';
 
 
 const AppHeader = () => {
@@ -15,6 +16,7 @@ const AppHeader = () => {
   
   const handleCitySelect = (city: City) => {
     dispatch(addFavorite(city));
+    dispatch(fetchWeatherForCity(city.name));
     router.push(`/city/${encodeURIComponent(city.name)}`);
   };
 
